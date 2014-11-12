@@ -9,6 +9,7 @@ echo "Catting data files..."
 EDGES_FILE=links.txt
 TITLES_FILE=titles.txt
 INSTANCE_TYPES_FILE=instance_types.txt
+ONTOLOGY_FILE=tree_links.txt
 
 cd ../data/edges
 
@@ -29,10 +30,15 @@ if [ ! -f "$INSTANCE_TYPES_FILE" ]; then
 	cat instance_types_1.txt instance_types_2.txt instance_types_3.txt > $INSTANCE_TYPES_FILE
 fi
 
-# export the full file paths as environment variables so we can grab them in python
-export EDGES_FILE="$( cd "$(dirname "$EDGES_FILE")" && pwd)/$(basename "$EDGES_FILE" )"
-export TITLES_FILE="$( cd "$(dirname "$TITLES_FILE")" && pwd)/$(basename "$TITLES_FILE" )"
 export INSTANCE_TYPES_FILE="$( cd "$(dirname "$INSTANCE_TYPES_FILE")" && pwd)/$(basename "$INSTANCE_TYPES_FILE" )"
 
-cd ../../code
+cd ../edges
+
+export EDGES_FILE="$( cd "$(dirname "$EDGES_FILE")" && pwd)/$(basename "$EDGES_FILE" )"
+export TITLES_FILE="$( cd "$(dirname "$TITLES_FILE")" && pwd)/$(basename "$TITLES_FILE" )"
+
+cd ..
+export ONTOLOGY_FILE="$( pwd )/$(basename "$ONTOLOGY_FILE" )"
+
+cd ../code
 echo "Done."

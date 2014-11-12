@@ -1,3 +1,4 @@
 data/edges/links.txt
 data/edges/titles.txt
 data/instance_types/instance_types.txt
+*.pyc
