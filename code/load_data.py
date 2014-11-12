@@ -1,13 +1,24 @@
 import os
 from collections import Counter
 import numpy as np
-import util
+import cPickle as pickle
 
 # Get the absolute file paths
 EDGES_FILE = os.environ['EDGES_FILE']
 TITLES_FILE = os.environ['TITLES_FILE']
 INSTANCE_TYPES_FILE = os.environ['INSTANCE_TYPES_FILE']
 ONTOLOGY_FILE = os.environ['ONTOLOGY_FILE']
+
+# Utility for saving an object to a file
+def save_object(obj, filename):
+    with open(filename, 'wb') as output:
+        pickle.dump(obj, output, pickle.HIGHEST_PROTOCOL)
+
+def load_object(filename):
+    obj = None
+    with open(filename, 'rb') as input1:
+        obj = pickle.load(input1)
+    return obj
 
 class Node:
     def __init__(self, value):
@@ -30,41 +41,42 @@ type_to_depth = {}
 root = Node("ROOT")
 type_to_node["ROOT"] = root
 
-print "Processing ontology file..."
-f = open(ONTOLOGY_FILE, 'r')
-for line in f:
-    vals = line.strip().split()
-    
-    # the string names of the child and parent nodes
-    node_val = vals[0]
-    parent_val = vals[1]
+def process_ontology_file():
+    print "Processing ontology file..."
+    f = open(ONTOLOGY_FILE, 'r')
+    for line in f:
+        vals = line.strip().split()
+        
+        # the string names of the child and parent nodes
+        node_val = vals[0]
+        parent_val = vals[1]
 
-    # the actual nodes
-    curr_node = None
-    curr_parent = None
+        # the actual nodes
+        curr_node = None
+        curr_parent = None
 
-    # get the node objects: either create new ones if they haven't been seen, or use the ones previously created
+        # get the node objects: either create new ones if they haven't been seen, or use the ones previously created
 
-    if node_val not in type_to_node:
-        curr_node = Node(node_val)
-        type_to_node[node_val] = curr_node
-    else:
-        curr_node = type_to_node[node_val]
-
-    # a Thing is a child of the root
-    if parent_val == "2002/07/owl#Thing":
-        curr_parent = type_to_node["ROOT"]
-    else:
-        if parent_val not in type_to_node:
-            curr_parent = Node(parent_val)
-            type_to_node[parent_val] = curr_parent
+        if node_val not in type_to_node:
+            curr_node = Node(node_val)
+            type_to_node[node_val] = curr_node
         else:
-            curr_parent = type_to_node[parent_val]
-    
-    curr_parent.add_child(curr_node)
+            curr_node = type_to_node[node_val]
 
-f.close()
-print "Done processing ontology file."
+        # a Thing is a child of the root
+        if parent_val == "2002/07/owl#Thing":
+            curr_parent = type_to_node["ROOT"]
+        else:
+            if parent_val not in type_to_node:
+                curr_parent = Node(parent_val)
+                type_to_node[parent_val] = curr_parent
+            else:
+                curr_parent = type_to_node[parent_val]
+        
+        curr_parent.add_child(curr_node)
+
+    f.close()
+    print "Done processing ontology file."
 
 # Populate the type_to_depth map.
 def mark_depths(root, height):
@@ -72,45 +84,44 @@ def mark_depths(root, height):
     for child in root.get_children():
         mark_depths(child, height + 1)
 
-mark_depths(type_to_node["ROOT"], 0)
-
 # mapping from name of article -> type in the hierarchy
 name_to_type = {}
 
-print "Processing instance types file..."
-# Load the instance types
-f2 = open(INSTANCE_TYPES_FILE, 'r')
-for line in f2:
-    if line.strip().endswith("basketball_team:NCAATeamSeason,SportsTeamSeason,SportsSeason"):
-        continue 
+def process_instance_types_file():
+    print "Processing instance types file..."
+    # Load the instance types
+    f2 = open(INSTANCE_TYPES_FILE, 'r')
+    for line in f2:
+        if line.strip().endswith("basketball_team:NCAATeamSeason,SportsTeamSeason,SportsSeason"):
+            continue 
 
-    vals = line.strip().split('\t')
-    try:
-        curr = vals[0]
-        types = vals[1].split(',')
+        vals = line.strip().split('\t')
+        try:
+            curr = vals[0]
+            types = vals[1].split(',')
 
-        if curr == "#":
-            continue
+            if curr == "#":
+                continue
 
-        # find the type with the greatest depth; take the most specific type for each article
-        max_depth = -1
-        best_type = None
-        for tpe in types:
-            curr_type = tpe.strip()
-            if curr_type in type_to_depth:
-                curr_depth = type_to_depth[curr_type]
-                if curr_depth > max_depth:
-                    max_depth = curr_depth
-                    best_type = curr_type
+            # find the type with the greatest depth; take the most specific type for each article
+            max_depth = -1
+            best_type = None
+            for tpe in types:
+                curr_type = tpe.strip()
+                if curr_type in type_to_depth:
+                    curr_depth = type_to_depth[curr_type]
+                    if curr_depth > max_depth:
+                        max_depth = curr_depth
+                        best_type = curr_type
 
-        name_to_type[curr] = best_type
+            name_to_type[curr] = best_type
 
-    except:
-        print "Line = " + line
-        raise IndexError()
+        except:
+            print "Line = " + line
+            raise IndexError()
 
-f2.close()
-print "Done processing instance types file."
+    f2.close()
+    print "Done processing instance types file."
 
 # Load the linenum -> article title map and the article title -> linenum
 
@@ -118,26 +129,17 @@ print "Done processing instance types file."
 linenum_to_title = {}
 title_to_linenum = {}
 
-print "Processing titles file..."
-f1 = open(TITLES_FILE, 'r')
-count = 1
-for line in f1:
-  line = line.strip()
-  linenum_to_title[str(count)] = line
-  title_to_linenum[line] = str(count)
-  count += 1
-f1.close()
-print "Done processing titles file."
-
-
-# PRINT STATISTICS
-print "Number of Wikipedia articles (nodes) = " + str(len(name_to_type))
-print "Number of nodes in the hierarchy (not including ROOT) = " + str(len(type_to_depth) - 1)
-print "Max depth of hierarchy = " + str(max(type_to_depth.values()))
-
-
-# now we have a type for each article; for each type we have a depth
-print "Processing edges file..."
+def process_titles_file():
+    print "Processing titles file..."
+    f1 = open(TITLES_FILE, 'r')
+    count = 1
+    for line in f1:
+      line = line.strip()
+      linenum_to_title[str(count)] = line
+      title_to_linenum[line] = str(count)
+      count += 1
+    f1.close()
+    print "Done processing titles file."
 
 # need mapping between node id's in the edges file and the index into the adj matrix
 edges_id_to_adj_index = {}
@@ -145,59 +147,71 @@ edges_id_to_adj_index = {}
 # inverse mapping of above
 adj_index_to_edges_id = {}
 
-adj_matrix = np.zeros((1345830, 1345830))
+# map of adj lists between indices
+# int -> numpy array
+adj_matrix = {}
 
-c = 0
-total = 0
-adj_matrix_id = 0
-f3 = open(EDGES_FILE, 'r')
-for line in f3:
-    if total % 10000 == 0: print total
+def process_edges_file():
+    print "Processing edges file..."
+    c = 0
+    total = 0
+    n_edges = 0
+    adj_matrix_id = 0
+    f3 = open(EDGES_FILE, 'r')
+    for line in f3:
+        if total % 100000 == 0: print total
 
-    total += 1
-    vals = line.strip().split(':')
-    src = vals[0].strip()
-    dst_list = vals[1].strip().split()
+        total += 1
+        vals = line.strip().split(':')
+        src = vals[0].strip()
+        dst_list = vals[1].strip().split()
 
-    # make sure we have the source node in our instance types dataset
-    src_name = linenum_to_title[src]
-    if src_name in name_to_type:
-        c += 1
+        # make sure we have the source node in our instance types dataset
+        src_name = linenum_to_title[src]
+        if src_name in name_to_type:
+            c += 1
 
-        # get the index into the adj matrix for the source node
-        src_adj_index = -1
-        if src in edges_id_to_adj_index:
-            src_adj_index = edges_id_to_adj_index[src]
-        else:
-            src_adj_index = adj_matrix_id
-            edges_id_to_adj_index[src] = adj_matrix_id
-            adj_matrix_id += 1
+            # get the index into the adj matrix for the source node
+            src_adj_index = -1
+            if src in edges_id_to_adj_index:
+                src_adj_index = edges_id_to_adj_index[src]
+            else:
+                src_adj_index = adj_matrix_id
+                edges_id_to_adj_index[src] = adj_matrix_id
+                adj_matrix_id += 1
 
-        adj_index_to_edges_id[adj_matrix_id] = src
+            adj_index_to_edges_id[adj_matrix_id] = src
 
-        for dst in dst_list:
-            # make sure the destination exists in all our datasets; otherwise just skip it
-            dst_name = linenum_to_title[dst]
-            if dst_name in name_to_type:
-                # get the index into the adj matrix for the destination node
-                dst_adj_index = -1
-                if dst in edges_id_to_adj_index:
-                    dst_adj_index = edges_id_to_adj_index[dst]
+            for dst in dst_list:
+                # make sure the destination exists in all our datasets; otherwise just skip it
+                dst_name = linenum_to_title[dst]
+                if dst_name in name_to_type:
+                    # get the index into the adj matrix for the destination node
+                    dst_adj_index = -1
+                    if dst in edges_id_to_adj_index:
+                        dst_adj_index = edges_id_to_adj_index[dst]
+                    else:
+                        dst_adj_index = adj_matrix_id
+                        edges_id_to_adj_index[dst] = adj_matrix_id
+                        adj_matrix_id += 1
+
+                    adj_index_to_edges_id[adj_matrix_id] = dst
+
+                # mark this edge in the adj matrix
+                #adj_matrix[(src_adj_index, dst_adj_index)] = 1
+                if src_adj_index in adj_matrix:
+                    np.append(adj_matrix[src_adj_index], dst_adj_index)
                 else:
-                    dst_adj_index = adj_matrix_id
-                    edges_id_to_adj_index[dst] = adj_matrix_id
-                    adj_matrix_id += 1
+                    adj_matrix[src_adj_index] = np.array([dst_adj_index])
 
-                adj_index_to_edges_id[adj_matrix_id] = dst
+                n_edges += 1
 
-            # mark this edge in the adj matrix
-            adj_matrix[(src_adj_index, dst_adj_index)] = 1
+    f3.close()
+    print "Done processing edges file."
+    print "Number of nodes in Wiki dataset we have type information for = " + str(c)
+    print "Number of edges = " + str(n_edges)
+    print "Total number of nodes in Wikipedia dataset = " + str(total)
 
-f3.close()
-print "Done processing edges file."
-
-print "Number of nodes in Wiki dataset we have type information for = " + str(c)
-print "Total number of nodes in Wikipedia dataset = " + str(total)
 
 # append the string names to path
 def get_path(root, node, path):
@@ -258,3 +272,24 @@ def convert_adj_ids_to_article_names(adj_matrix_id1, adj_matrix_id2):
     article2_name = linenum_to_title[article2_linenum]
 
     return (article1_name, article2_name)
+
+
+def run_data_processing():
+    process_ontology_file()
+    mark_depths(type_to_node["ROOT"], 0)
+    process_instance_types_file()
+    process_titles_file()
+
+    print "Number of Wikipedia articles (nodes) = " + str(len(name_to_type))
+    print "Number of nodes in the hierarchy (not including ROOT) = " + str(len(type_to_depth) - 1)
+    print "Max depth of hierarchy = " + str(max(type_to_depth.values()))
+    
+    process_edges_file()
+
+    # save the objects that will be used by others into files
+    save_object(name_to_type, "bin/name_to_type.pk1")
+    save_object(title_to_linenum, "bin/title_to_linenum.pk1")
+    save_object(edges_id_to_adj_index, "bin/edges_id_to_adj_index.pk1")
+    save_object(adj_matrix, "bin/adj_matrix.pk1")
+
+run_data_processing()

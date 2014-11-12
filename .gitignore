@@ -2,3 +2,5 @@ data/edges/links.txt
 data/edges/titles.txt
 data/instance_types/instance_types.txt
 *.pyc
+*name_to_type.pk1
+*title_to_linenum.pk1
