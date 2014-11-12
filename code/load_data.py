@@ -197,14 +197,14 @@ def process_edges_file():
 
                     adj_index_to_edges_id[adj_matrix_id] = dst
 
-                # mark this edge in the adj matrix
-                #adj_matrix[(src_adj_index, dst_adj_index)] = 1
-                if src_adj_index in adj_matrix:
-                    np.append(adj_matrix[src_adj_index], dst_adj_index)
-                else:
-                    adj_matrix[src_adj_index] = np.array([dst_adj_index])
+                    # mark this edge in the adj matrix
+                    #adj_matrix[(src_adj_index, dst_adj_index)] = 1
+                    if src_adj_index in adj_matrix:
+                        np.append(adj_matrix[src_adj_index], dst_adj_index)
+                    else:
+                        adj_matrix[src_adj_index] = np.array([dst_adj_index])
 
-                n_edges += 1
+                    n_edges += 1
 
     f3.close()
     print "Done processing edges file."
@@ -292,4 +292,4 @@ def run_data_processing():
     save_object(edges_id_to_adj_index, "bin/edges_id_to_adj_index.pk1")
     save_object(adj_matrix, "bin/adj_matrix.pk1")
 
-run_data_processing()
+#run_data_processing()

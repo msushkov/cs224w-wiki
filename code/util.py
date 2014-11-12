@@ -106,14 +106,17 @@ def run_decentralized_search(source_article_name, dest_article_name):
     edges_id_to_adj_index = load_data.load_object("bin/edges_id_to_adj_index.pk1")
     adj_matrix = load_data.load_object("bin/adj_matrix.pk1")
     
-    src_linenum = title_to_linenum[source_article_name]
-    dst_linenum = title_to_linenum[dest_article_name]
+    try:
+        src_linenum = title_to_linenum[source_article_name]
+        dst_linenum = title_to_linenum[dest_article_name]
 
-    src_adj_index = edges_id_to_adj_index[src_linenum]
-    dst_adj_index = edges_id_to_adj_index[dst_linenum]
+        src_adj_index = edges_id_to_adj_index[src_linenum]
+        dst_adj_index = edges_id_to_adj_index[dst_linenum]
 
-    return search(src_adj_index, dst_adj_index, adj_matrix, 0, load_data.get_ontology_distance)
-    
+        return search(src_adj_index, dst_adj_index, adj_matrix, 0, load_data.get_ontology_distance)
+    except KeyError:
+        return (None, None)
+        
 # The distance function to be used in search()
 def distance(adj_matrix_id1, adj_matrix_id2):
     (article1_name, article2_name) = load_data.convert_adj_ids_to_article_names(adj_matrix_id1, adj_matrix_id2)
