@@ -3,6 +3,10 @@ import json
 import nltk
 from HTMLParser import HTMLParser
 import string
+from nltk.corpus import stopwords
+
+# The English stop words
+STOP_WORDS = set(stopwords.words('english'))
 
 # the number of edges to visit when doing decentralized search before we give up
 SEARCH_DIST_THRESHOLD = 1000
@@ -47,7 +51,7 @@ def get_article_text(article_name):
 	
 	#tokens = nltk.word_tokenize(strip_tags(s))
 	
-	return result
+	return result.lower()
 
 # Return list of nodes for which adj_matrix[v, w] > 0
 def get_neighbors(v, adj_matrix_arg):
@@ -56,6 +60,25 @@ def get_neighbors(v, adj_matrix_arg):
 		if val > 0:
 			nbrs.append(i)
 	return nbrs
+
+# Returns a heuristic for the distance between the 2 articles.
+# Things to try:
+# - 1.0 / number of overlapping words
+# - Jaccard similarity between 2 sets of words
+# - Cosine similarity between TF-IDF vectors
+def get_article_distance(article1_name, article2_name):
+	article1_text = get_article_text(article1_name)
+	article2_text = get_article_text(article2_name)
+
+	# split the text by space; convert to a set; filter stop words
+	words1 = set(article1_text.split())
+	words2 = set(article2_text.split())
+	w1 = set([w for w in words1 if not w in STOP_WORDS])
+	w2 = set([w for w in words2 if not w in STOP_WORDS])
+
+	result = len(w1.intersection(w2))
+	return result
+
 
 # Runs decentralized search
 # source and destination are indices into adj_matrix_arg
@@ -79,4 +102,18 @@ def search(source, destination, adj_matrix_arg, path_length, distance_function):
     	else:
     		return search(best_neighbor, destination, adj_matrix_arg, path_length + 1, distance_function)
 
+# Wrapper for search()
+def run_decentralized_search(source_article_name, dest_article_name):
+	src_linenum = load_data.title_to_linenum[source_article_name]
+	dst_linenum = load_data.title_to_linenum[dest_article_name]
+
+	src_adj_index = edges_id_to_adj_index[src_linenum]
+	dst_adj_index = edges_id_to_adj_index[dst_linenum]
+
+	return search(src_adj_index, dst_adj_index, load_data.adj_matrix, 0, load_data.distance)
     
+# The distance function to be used in search()
+def distance(adj_matrix_id1, adj_matrix_id2):
+	(article1_name, article2_name) = load_data.convert_adj_ids_to_article_names(adj_matrix_id1, adj_matrix_id2)
+	return get_article_distance(article1_name, article2_name)
+
