@@ -206,6 +206,8 @@ def process_titles_file():
     count = 1
     for line in f1:
       line = line.strip()
+      if line[-3:-1] == "__":
+        continue
       linenum_to_title[str(count)] = line
       title_to_linenum[line] = str(count)
       count += 1
@@ -227,7 +229,7 @@ def process_edges_file():
     n_edges = 0
     f3 = open(EDGES_FILE, 'r')
     for line in f3:
-        #if total == 500000: break
+        #if total == 50000: break
 
         # print progress as a percentage (only 1 decimal place)
         if total % 500000 == 0:
@@ -267,7 +269,7 @@ def process_edges_file():
 
 
 def get_articles():
-    return article_names
+    return list(article_names)
 def get_name_to_type():
     return name_to_type
 def get_title_to_linenum():
