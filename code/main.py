@@ -1,6 +1,7 @@
 import random
 import util
 import load_data
+import networkx as nx
 
 print "Starting main.py..."
 
@@ -108,6 +109,31 @@ def lowest_common_ancestor(root, node1, node2):
             return last_equal
 
 
+
+
+#
+# GRAPH PROCESSING
+#
+
+print "Starting NetworkX processing..."
+
+G = nx.Graph()
+
+for src in adj_list:
+    for dst in adj_list[src]:
+        G.add_edge(src, dst)
+
+print "Finding size of largest CC..."
+
+largest_CC = nx.connected_component_subgraphs(G)[0]
+
+print "Number of nodes: %d" % G.number_of_nodes()
+print "Number of edges: %d" % G.size()
+print "Number of nodes in largest CC: %d" % largest_CC.number_of_nodes()
+print "Number of edges in largest CC: %d" % largest_CC.size()
+
+
+
 #
 # RUN THE EXPERIMENT
 #
@@ -149,4 +175,4 @@ def run_experiment():
             print "%s. Article 1: %s, Article 2: %s, Predicted distance = %d, Ontology distance = %d" % \
                 (success_or_fail, article1_name, article2_name, predicted_distance, ontology_distance)
 
-run_experiment()
+#run_experiment()
