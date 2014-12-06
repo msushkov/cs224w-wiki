@@ -111,6 +111,7 @@ def lowest_common_ancestor(root, node1, node2):
 #
 # RUN THE EXPERIMENT
 #
+
 def run_experiment():
     N = 5
     num_success = 0
@@ -123,6 +124,8 @@ def run_experiment():
         article2_name = random.choice(articles)
         while article1_name == article2_name:
             article2_name = random.choice(articles)
+
+        print "Article 1: %s, article 2: %s" % (article1_name, article2_name)
 
         src_id = int(title_to_linenum[article1_name])
         dst_id = int(title_to_linenum[article2_name])
@@ -146,4 +149,4 @@ def run_experiment():
             print "%s. Article 1: %s, Article 2: %s, Predicted distance = %d, Ontology distance = %d" % \
                 (success_or_fail, article1_name, article2_name, predicted_distance, ontology_distance)
 
-#run_experiment()
+run_experiment()
