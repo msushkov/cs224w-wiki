@@ -1,6 +1,6 @@
 import random
 import util
-import data_processing/load_data
+import load_data
 
 print "Starting main.py..."
 
