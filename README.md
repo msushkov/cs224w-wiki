@@ -24,7 +24,7 @@ A visual representation of the ontology:
 http://mappings.dbpedia.org/server/ontology/classes/
 
 
-# TODOss
+# TODOs
 
 - cache article text
 - featurize article pairs
