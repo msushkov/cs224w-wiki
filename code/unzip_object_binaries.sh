@@ -38,3 +38,5 @@ fi
 if [ ! -f "$NAME_TO_TYPE" ]; then
     bunzip2 "$NAME_TO_TYPE"
 fi
+
+cd ..
