@@ -118,8 +118,12 @@ def lowest_common_ancestor(root, node1, node2):
 print "Starting NetworkX processing..."
 
 G = nx.Graph()
-
+c = 0
 for src in adj_list:
+    c += 1
+    if c % 10000 == 0:
+        print "Finished %d out of 1.3 million..." % c
+
     for dst in adj_list[src]:
         G.add_edge(src, dst)
 
