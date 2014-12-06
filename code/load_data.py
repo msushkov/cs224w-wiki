@@ -15,7 +15,7 @@ ONTOLOGY_FILE = os.environ['ONTOLOGY_FILE']
 # Utility for saving an object to a file
 def save_object(obj, filename):
     with open(filename, 'wb') as output:
-        pickle.dump(obj, output, pickle.HIGHEST_PROTOCOL)
+        pickle.dump(obj, output, -1)
 
 def load_object(filename):
     obj = None
@@ -229,7 +229,7 @@ def process_edges_file():
     n_edges = 0
     f3 = open(EDGES_FILE, 'r')
     for line in f3:
-        #if total == 50000: break
+        #if total == 500000: break
 
         # print progress as a percentage (only 1 decimal place)
         if total % 500000 == 0:
@@ -320,4 +320,4 @@ def run_data_processing():
     save_object(adj_list, "bin/adj_list.pk1")
     save_object(type_to_depth, "bin/type_to_depth.pk1")
 
-run_data_processing()
+#run_data_processing()

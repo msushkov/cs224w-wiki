@@ -6,19 +6,21 @@ print "Starting main.py..."
 
 # Load necessary data structures from file (those computed in load_data)
 
-# articles = load_data.load_object("bin/article_names.pk1")
-# name_to_type = load_data.load_object("bin/name_to_type.pk1")
-# title_to_linenum = load_data.load_object("bin/title_to_linenum.pk1")
-# linenum_to_title = load_data.load_object("bin/linenum_to_title.pk1")
-# adj_list = load_data.load_object("bin/adj_list.pk1")
-# type_to_depth = load_data.load_object("bin/type_to_depth.pk1")
+articles = load_data.load_object("bin/article_names.pk1")
+name_to_type = load_data.load_object("bin/name_to_type.pk1")
+title_to_linenum = load_data.load_object("bin/title_to_linenum.pk1")
+linenum_to_title = load_data.load_object("bin/linenum_to_title.pk1")
+adj_list = load_data.load_object("bin/adj_list.pk1")
+type_to_depth = load_data.load_object("bin/type_to_depth.pk1")
 
-articles = load_data.get_articles()
-name_to_type = load_data.get_name_to_type()
-title_to_linenum = load_data.get_title_to_linenum()
-linenum_to_title = load_data.get_linenum_to_title()
-adj_list = load_data.get_adj_list()
-type_to_depth = load_data.get_type_to_depth()
+print "Loaded objects from binary files."
+
+# articles = load_data.get_articles()
+# name_to_type = load_data.get_name_to_type()
+# title_to_linenum = load_data.get_title_to_linenum()
+# linenum_to_title = load_data.get_linenum_to_title()
+# adj_list = load_data.get_adj_list()
+# type_to_depth = load_data.get_type_to_depth()
 
 #print "(main) Hash of adj_list: " + str(load_data.get_hash(adj_list))
 
@@ -156,4 +158,4 @@ def run_experiment():
             print "%s. Article 1: %s, Article 2: %s, Predicted distance = %d, Ontology distance = %d" % \
                 (success_or_fail, article1_name, article2_name, predicted_distance, ontology_distance)
 
-run_experiment()
+#run_experiment()
