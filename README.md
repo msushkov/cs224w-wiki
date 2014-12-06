@@ -1,14 +1,31 @@
 cs224w-wiki
 ===========
 
+# Setup
+
+To create the binary data object files in code/bin (the ones used by the python scripts), run from the code directory:
+
+$ source create_data.sh
+
+and all the data files will be properly created. Running the script will also ensure that the proper environment variables are set (used by the python scripts).
+
+This is only necessary if the data changes, or for some reason you wish to regenerate the object files. In most situations this step is unnecessary and you can work directly with the pk1 files in code/bin.
+
+In order to use the object files in code/bin, run from the code directory:
+
+$ source unzip_object_binaries.sh
+
+Now you are ready to easily load the data into memory and use it to run experiments.
+
+
+# Details
+
+A visual representation of the ontology:
 http://mappings.dbpedia.org/server/ontology/classes/
 
-in order to do this, process the ontology tree file first and create a tree out of the links. create a function that omputes the height of a node in this tree (verify against the ontology UI)
-once we have the tree we can compute the gold set: how far away nodes are from each other.
-now, write a function taht does decentralized search on a given graph. load the graph into snappy and use a basic distance metric to compute distances between random pairs of nodes
 
-TODO
-- fix pickle issue
+# TODOss
+
 - cache article text
 - featurize article pairs
 - LDA
