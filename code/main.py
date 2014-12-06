@@ -15,15 +15,6 @@ type_to_depth = load_data.load_object("bin/type_to_depth.pk1")
 
 print "Loaded objects from binary files."
 
-# articles = load_data.get_articles()
-# name_to_type = load_data.get_name_to_type()
-# title_to_linenum = load_data.get_title_to_linenum()
-# linenum_to_title = load_data.get_linenum_to_title()
-# adj_list = load_data.get_adj_list()
-# type_to_depth = load_data.get_type_to_depth()
-
-#print "(main) Hash of adj_list: " + str(load_data.get_hash(adj_list))
-
 # Debug: look at adj_list length distribution
 def print_adj_list_lengths(k):
     vals = adj_list.values()
@@ -57,9 +48,6 @@ def check_adj_list():
     
 def check_val(value):
     return value >= 1 and value <= 5706070
-
-
-check_adj_list()
 
 
 #
