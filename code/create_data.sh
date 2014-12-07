@@ -13,7 +13,7 @@ ONTOLOGY_FILE=tree_links.txt
 
 cd ../data
 
-export STOP_WORDS_FILE=english_stopwords.txt
+export STOP_WORDS_FILE="$( pwd )/$(basename "english_stopwords.txt" )"
 
 cd edges
 
