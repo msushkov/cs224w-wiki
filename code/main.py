@@ -1,7 +1,8 @@
 import random
 import util
 import load_data
-import networkx as nx
+import snap
+import numpy as np
 
 print "Starting main.py..."
 
@@ -115,28 +116,62 @@ def lowest_common_ancestor(root, node1, node2):
 # GRAPH PROCESSING
 #
 
-print "Starting NetworkX processing..."
+print "Starting graph processing..."
 
-G = nx.Graph()
+G1 = snap.TNGraph.New()
 c = 0
 for src in adj_list:
     c += 1
     if c % 10000 == 0:
         print "Finished %d out of 1.3 million..." % c
 
+    if not G1.IsNode(int(src)):
+        G1.AddNode(int(src))
+
     for dst in adj_list[src]:
-        G.add_edge(src, dst)
+        if not G1.IsNode(int(dst)):
+            G1.AddNode(int(dst))
+        G1.AddEdge(int(src), int(dst))
 
-print "Finding size of largest CC..."
+print "Finding largest CC..."
 
-largest_CC = nx.connected_component_subgraphs(G)[0]
+G = snap.GetMxScc(G1)
 
-print "Number of nodes: %d" % G.number_of_nodes()
-print "Number of edges: %d" % G.size()
-print "Number of nodes in largest CC: %d" % largest_CC.number_of_nodes()
-print "Number of edges in largest CC: %d" % largest_CC.size()
+print "Size of max SCC: %s" % str(G.GetNodes())
 
+# get the node ids of nodes in the largest SCC. from now on, use this as the Wiki graph
+node_ids = set()
+for node in G.Nodes():
+    node_ids.add(node.GetId())
 
+# write the node ids of max scc to a file so we can use them later without doing this again
+load_data.save_object(node_ids, "max_scc_nodeids.pk1")
+
+# update articles
+print "Updating articles..."
+new_articles = []
+for article_name in articles:
+    node_id = int(title_to_linenum[article_name])
+    if node_id in node_ids:
+        new_articles.append(node_id)
+
+# update adj_list
+print "Updating adj_list..."
+for src_id in adj_list.keys():
+    if src_id not in node_ids:
+        del adj_list[src_id]
+    else:
+        new_neighbors = np.array([], dtype=np.uint32)
+        for dst_id in adj_list[src_id]:
+            if int(dst_id) in node_ids:
+                np.append(new_neighbors, np.uint32(dst_id))
+
+        adj_list[src_id] = new_neighbors
+
+print "Printing info..."
+
+# print stats on max scc
+snap.PrintInfo(G, "wiki_graph", Fast=False)
 
 #
 # RUN THE EXPERIMENT

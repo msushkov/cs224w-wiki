@@ -23,7 +23,6 @@ http://mappings.dbpedia.org/server/ontology/classes/
 
 
 # TODOs
-- use networkx to get largest connected component and only look at wiki nodes in that
 - update wiki api call to get all neighbors' text at once (fetch articles in the search; have distance function take in lists of words rather than article names)
 - cache article text
 - featurize article pairs: framework for feature extraction (pass in method)
