@@ -122,20 +122,7 @@ def lowest_common_ancestor(root, node1, node2):
 def process_in_snappy():
     print "Starting graph processing..."
 
-    G1 = snap.TNGraph.New()
-    c = 0
-    for src in adj_list:
-        c += 1
-        if c % 10000 == 0:
-            print "Finished %d out of 1.3 million..." % c
-
-        if not G1.IsNode(int(src)):
-            G1.AddNode(int(src))
-
-        for dst in adj_list[src]:
-            if not G1.IsNode(int(dst)):
-                G1.AddNode(int(dst))
-            G1.AddEdge(int(src), int(dst))
+    G1 = create_snap_graph_from_adjlist()
 
     print "Finding largest CC..."
 
@@ -172,12 +159,29 @@ def process_in_snappy():
     # save adj_list and articles
     load_data.save_object(adj_list, "bin/adj_list.pk1")
     load_data.save_object(articles, "bin/article_names.pk1")
-    load_data.save_object(G, "bin/wiki_graph_object.pk1")
 
     print "Printing info..."
 
     # print stats on max scc
     snap.PrintInfo(G, "wiki_graph", "", False)
+
+
+def create_snap_graph_from_adjlist():
+    G1 = snap.TNGraph.New()
+    c = 0
+    for src in adj_list:
+        c += 1
+        if c % 10000 == 0:
+            print "Finished %d..." % c
+
+        if not G1.IsNode(int(src)):
+            G1.AddNode(int(src))
+
+        for dst in adj_list[src]:
+            if not G1.IsNode(int(dst)):
+                G1.AddNode(int(dst))
+            G1.AddEdge(int(src), int(dst))
+    return G1
 
 #
 # RUN THE EXPERIMENT
