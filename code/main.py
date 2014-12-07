@@ -17,6 +17,8 @@ type_to_depth = load_data.load_object("bin/type_to_depth.pk1")
 
 print "Loaded objects from binary files."
 
+
+
 # Debug: look at adj_list length distribution
 def print_adj_list_lengths(k):
     vals = adj_list.values()
@@ -224,5 +226,10 @@ def run_experiment():
             print "%s. Article 1: %s, Article 2: %s, Predicted distance = %d, Ontology distance = %d" % \
                 (success_or_fail, article1_name, article2_name, predicted_distance, ontology_distance)
 
-process_in_snappy()
 #run_experiment()
+
+G = create_snap_graph_from_adjlist()
+
+print G.GetNodes()
+print G.GetEdges()
+snap.PrintInfo(G, "wiki_graph", "", False)
