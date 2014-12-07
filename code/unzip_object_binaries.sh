@@ -10,6 +10,7 @@ LINENUM_TO_TITLE=linenum_to_title.pk1
 TITLE_TO_LINENUM=title_to_linenum.pk1
 TYPE_TO_DEPTH=type_to_depth.pk1
 NAME_TO_TYPE=name_to_type.pk1
+GRAPH=wiki_graph_object.pk1
 
 cd bin
 
@@ -37,6 +38,10 @@ fi
 
 if [ ! -f "$NAME_TO_TYPE" ]; then
     bunzip2 "$NAME_TO_TYPE.bz2"
+fi
+
+if [ ! -f "$GRAPH" ]; then
+    bunzip2 "$GRAPH.bz2"
 fi
 
 cd ..
