@@ -11,7 +11,11 @@ TITLES_FILE=titles.txt
 INSTANCE_TYPES_FILE=instance_types.txt
 ONTOLOGY_FILE=tree_links.txt
 
-cd ../data/edges
+cd ../data
+
+export STOP_WORDS_FILE="$( pwd )/$(basename "english_stopwords.txt" )"
+
+cd edges
 
 # if we already catted the file, don't do anything
 if [ ! -f "$EDGES_FILE" ]; then 

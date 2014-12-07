@@ -285,10 +285,6 @@ def get_type_to_depth():
 # Set of Wiki article names (for which we have complete information)
 article_names = None
 
-
-def get_hash(d):
-    return hashlib.md5(d.__str__()).hexdigest()
-
 # Main function
 def run_data_processing():
     global article_names

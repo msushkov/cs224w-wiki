@@ -1,6 +1,8 @@
 import random
 import util
 import load_data
+import snap
+import numpy as np
 
 print "Starting main.py..."
 
@@ -14,6 +16,8 @@ adj_list = load_data.load_object("bin/adj_list.pk1")
 type_to_depth = load_data.load_object("bin/type_to_depth.pk1")
 
 print "Loaded objects from binary files."
+
+
 
 # Debug: look at adj_list length distribution
 def print_adj_list_lengths(k):
@@ -108,6 +112,79 @@ def lowest_common_ancestor(root, node1, node2):
             return last_equal
 
 
+
+
+#
+# GRAPH PROCESSING
+#
+
+# Load the graph into snap, find largest SCC, update articles and adj_list to only
+# contain nodes in that SCC. Then save the article names, adj_list, and the graph object to
+# binary files.
+def process_in_snappy():
+    print "Starting graph processing..."
+
+    G1 = create_snap_graph_from_adjlist()
+
+    print "Finding largest CC..."
+
+    G = snap.GetMxScc(G1)
+
+    print "Size of max SCC: %s" % str(G.GetNodes())
+
+    # get the node ids of nodes in the largest SCC. from now on, use this as the Wiki graph
+    node_ids = set()
+    for node in G.Nodes():
+        node_ids.add(node.GetId())
+
+    # update articles
+    print "Updating articles..."
+    new_articles = []
+    for article_name in articles:
+        node_id = int(title_to_linenum[article_name])
+        if node_id in node_ids:
+            new_articles.append(node_id)
+
+    # update adj_list
+    print "Updating adj_list..."
+    for src_id in adj_list.keys():
+        if src_id not in node_ids:
+            del adj_list[src_id]
+        else:
+            new_neighbors = np.array([], dtype=np.uint32)
+            for dst_id in adj_list[src_id]:
+                if int(dst_id) in node_ids:
+                    np.append(new_neighbors, np.uint32(dst_id))
+
+            adj_list[src_id] = new_neighbors
+
+    # save adj_list and articles
+    load_data.save_object(adj_list, "bin/adj_list.pk1")
+    load_data.save_object(articles, "bin/article_names.pk1")
+
+    print "Printing info..."
+
+    # print stats on max scc
+    snap.PrintInfo(G, "wiki_graph", "", False)
+
+
+def create_snap_graph_from_adjlist():
+    G1 = snap.TNGraph.New()
+    c = 0
+    for src in adj_list:
+        c += 1
+        if c % 10000 == 0:
+            print "Finished %d..." % c
+
+        if not G1.IsNode(int(src)):
+            G1.AddNode(int(src))
+
+        for dst in adj_list[src]:
+            if not G1.IsNode(int(dst)):
+                G1.AddNode(int(dst))
+            G1.AddEdge(int(src), int(dst))
+    return G1
+
 #
 # RUN THE EXPERIMENT
 #
@@ -149,4 +226,10 @@ def run_experiment():
             print "%s. Article 1: %s, Article 2: %s, Predicted distance = %d, Ontology distance = %d" % \
                 (success_or_fail, article1_name, article2_name, predicted_distance, ontology_distance)
 
-run_experiment()
+#run_experiment()
+
+G = create_snap_graph_from_adjlist()
+
+print G.GetNodes()
+print G.GetEdges()
+snap.PrintInfo(G, "wiki_graph", "", False)

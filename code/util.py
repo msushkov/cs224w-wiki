@@ -3,15 +3,21 @@ import json
 import nltk
 from HTMLParser import HTMLParser
 import string
-from nltk.corpus import stopwords
+import os
 
-# The English stop words
-STOP_WORDS = set(stopwords.words('english'))
+STOP_WORDS_FILE = os.environ['STOP_WORDS_FILE']
+
+# Load the English stop words
+STOP_WORDS = set()
+f = open(STOP_WORDS_FILE, "r")
+for line in f:
+    STOP_WORDS.add(line.strip())
+f.close()
 
 # the number of edges to visit when doing decentralized search before we give up
 SEARCH_DIST_THRESHOLD = 100
 
-BASE_REQUEST_STR = "http://en.wikipedia.org/w/api.php?action=query&prop=extracts&format=json&titles="
+BASE_REQUEST_STR = "http://en.wikipedia.org/w/api.php?action=query&prop=extracts&format=json&explaintext&exsectionformat=plain&rvprop=content&titles="
 
 
 # Strips HTML tags from a string. Copied from StackOverflow.
@@ -31,7 +37,7 @@ def strip_tags(html):
 
 
 # example request:
-# http://en.wikipedia.org/w/api.php?action=query&prop=extracts&format=json&titles=Barack%20Obama
+# http://en.wikipedia.org/w/api.php?action=query&prop=extracts&format=json&explaintext&exsectionformat=plain&rvprop=content&titles=Barack%20Obama
 def create_wiki_api_url(article_name):
     new_name = article_name.replace(" ", "%20")
     return BASE_REQUEST_STR + new_name
@@ -47,8 +53,9 @@ class ArticleNotFoundError(Exception):
 # Get the text of a single Wikipedia article
 def get_article_text(article_name):
     result = urllib2.urlopen(create_wiki_api_url(article_name)).read()
-    
+
     data = json.loads(result)
+
     d = data["query"]["pages"]
     key = d.keys()[0]
     if "extract" not in d[key]:
