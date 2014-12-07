@@ -3,6 +3,7 @@ import json
 import nltk
 from HTMLParser import HTMLParser
 import string
+import os
 
 STOP_WORDS_FILE = os.environ['STOP_WORDS_FILE']
 
