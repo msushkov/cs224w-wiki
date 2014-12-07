@@ -122,6 +122,8 @@ def lowest_common_ancestor(root, node1, node2):
 # contain nodes in that SCC. Then save the article names, adj_list, and the graph object to
 # binary files.
 def process_in_snappy():
+    global articles, adj_list
+
     print "Starting graph processing..."
 
     G1 = create_snap_graph_from_adjlist()
@@ -143,29 +145,30 @@ def process_in_snappy():
     for article_name in articles:
         node_id = int(title_to_linenum[article_name])
         if node_id in node_ids:
-            new_articles.append(node_id)
+            new_articles.append(article_name)
 
     # update adj_list
     print "Updating adj_list..."
+    new_adj_list = {}
     for src_id in adj_list.keys():
-        if src_id not in node_ids:
-            del adj_list[src_id]
-        else:
-            new_neighbors = np.array([], dtype=np.uint32)
+        if src_id in node_ids:
+            if src_id not in new_adj_list:
+                new_adj_list[src_id] = np.array([], dtype=np.uint32)
+
             for dst_id in adj_list[src_id]:
                 if int(dst_id) in node_ids:
-                    np.append(new_neighbors, np.uint32(dst_id))
-
-            adj_list[src_id] = new_neighbors
+                    np.append(new_adj_list[src_id], np.uint32(dst_id))
 
     # save adj_list and articles
-    load_data.save_object(adj_list, "bin/adj_list.pk1")
-    load_data.save_object(articles, "bin/article_names.pk1")
+    articles = new_articles
+    adj_list = new_adj_list
+    load_data.save_object(new_adj_list, "bin/adj_list.pk1")
+    load_data.save_object(new_articles, "bin/article_names.pk1")
 
     print "Printing info..."
 
     # print stats on max scc
-    snap.PrintInfo(G, "wiki_graph", "", False)
+    snap.PrintInfo(G, "wiki_graph_max_scc", "", False)
 
 
 def create_snap_graph_from_adjlist():
@@ -228,8 +231,8 @@ def run_experiment():
 
 #run_experiment()
 
-G = create_snap_graph_from_adjlist()
+# G = create_snap_graph_from_adjlist()
 
-print G.GetNodes()
-print G.GetEdges()
-snap.PrintInfo(G, "wiki_graph", "", False)
+# print G.GetNodes()
+# print G.GetEdges()
+# snap.PrintInfo(G, "wiki_graph", "", False)
