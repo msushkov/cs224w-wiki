@@ -36,6 +36,14 @@ def create_wiki_api_url(article_name):
     new_name = article_name.replace(" ", "%20")
     return BASE_REQUEST_STR + new_name
 
+
+class ArticleNotFoundError(Exception):
+    pass
+    #def __init__(self, article_name):
+    #    self.article_name = article_name
+    #def __str__(self):
+    #    return self.article_name
+
 # Get the text of a single Wikipedia article
 def get_article_text(article_name):
     result = urllib2.urlopen(create_wiki_api_url(article_name)).read()
@@ -43,6 +51,9 @@ def get_article_text(article_name):
     data = json.loads(result)
     d = data["query"]["pages"]
     key = d.keys()[0]
+    if "extract" not in d[key]:
+        raise ArticleNotFoundError(article_name)
+
     s = d[key]["extract"].encode("utf-8", "ignore")
     
     # remove HTML tags
