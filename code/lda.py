@@ -4,8 +4,6 @@ from gensim.corpora.dictionary import Dictionary
 from gensim.models.ldamodel import LdaModel
 from gensim.models.tfidfmodel import TfidfModel
 import numpy as np
-import util
-import load_data
 import os.path
 import wiki_index
 
