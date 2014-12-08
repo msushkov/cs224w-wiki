@@ -198,7 +198,7 @@ def save_30k_articles(G):
     curr_hop = 1
     
     first_article = random.choice(articles)
-    first_id = int(titles_to_linenum[name])
+    first_id = int(title_to_linenum[first_article])
     articles_30k.add(first_article)
     ids_30k.add(first_id)
 
