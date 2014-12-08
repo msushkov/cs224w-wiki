@@ -10,6 +10,7 @@ print "Starting main.py..."
 
 ARTICLE_NAMES_30K_FILE = os.environ['ARTICLE_NAMES_30K']
 ADJ_LIST_30K_FILE = os.environ['ADJ_LIST_30K']
+ARTICLE_PAIRS_FILE = os.environ['ARTICLE_PAIRS']
 
 # Load necessary data structures from file (those computed in load_data)
 
@@ -246,6 +247,28 @@ def load_30k_graph_object():
 def build_index():
     wiki_index.build_indexes(load_30k_articles())
 
+
+def save_article_pairs():
+    NUM_PAIRS = 50000
+
+    articles_30k = load_30k_articles()
+    article_pairs = [] # list of (name1, name2)
+
+    count = 0
+    while count < NUM_PAIRS:
+        article1_name = random.choice(articles_30k)
+        article2_name = random.choice(articles_30k)
+        while article1_name == article2_name:
+            article2_name = random.choice(articles_30k)
+        article_pairs.append((article1_name, article2_name))
+        count += 1
+
+    load_data.save_object(article_pairs, ARTICLE_PAIRS_FILE)
+
+def load_article_pairs():
+    return load_data.load_object(ARTICLE_PAIRS_FILE)
+
+
 #
 # RUN THE EXPERIMENT
 #
@@ -293,7 +316,6 @@ def run_experiment():
 
 # Tries to learn the shortest path as a function of the features.
 def run_ml_on_distances():
-    NUM_TRIALS = 100
     count = 0
 
     # holds tuples of (article1_name, article2_name, shortest_path)
@@ -301,17 +323,11 @@ def run_ml_on_distances():
 
     # holds tuples of (article1_name, article2_name, [feat1, feat2, ...])
     nlp_features = []
-
-    articles_30k = load_30k_articles()
+    
     G = load_30k_graph_object()
+    article_pairs = load_article_pairs()
 
-    # go through NUM_TRIALS random article pairs
-    while count < NUM_TRIALS:
-        article1_name = random.choice(articles)
-        article2_name = random.choice(articles)
-        while article1_name == article2_name:
-            article2_name = random.choice(articles)
-
+    for (article1_name, article2_name) in article_pairs:
         print "Article 1: %s, article 2: %s" % (article1_name, article2_name)
 
         src_id = int(title_to_linenum[article1_name])
