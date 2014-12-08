@@ -34,7 +34,7 @@ class BowCorpus(object):
 
 def get_lda_model(num_topics):
     file_name = None
-    
+
     if num_topics == 10:
         file_name = LDA_FILE_10
     elif num_topics == 30:
@@ -52,7 +52,7 @@ def get_dictionary():
     return Dictionary.load(DICTIONARY_FILE)
 
 def get_corpus():
-    return MmCorpus.load(CORPUS_FILE)
+    return MmCorpus(CORPUS_FILE)
 
 def get_topics_for_article_name(article_name, lda_model, dictionary, article_name_to_linenum):
     article = wiki_index.get_article(article_name, article_name_to_linenum)

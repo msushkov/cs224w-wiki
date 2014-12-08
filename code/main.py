@@ -1,7 +1,7 @@
 import random
 import util
 import load_data
-import snap
+#import snap
 import numpy as np
 import os
 import wiki_index
