@@ -15,6 +15,7 @@ INDEX_FILE=index.txt
 DICTIONARY_FILE=dictionary.txt
 CORPUS_FILE=corpus.txt
 LDA_FILE=lda.txt
+TFIDF_FILE=tfidf.txt
 
 cd ../data
 
@@ -55,7 +56,14 @@ cd ../lda
 
 export DICTIONARY_FILE="$( cd "$(dirname "$DICTIONARY_FILE")" && pwd)/$(basename "$DICTIONARY_FILE" )"
 export CORPUS_FILE="$( cd "$(dirname "$CORPUS_FILE")" && pwd)/$(basename "$CORPUS_FILE" )"
-export LDA_FILE="$( cd "$(dirname "$LDA_FILE")" && pwd)/$(basename "$LDA_FILE" )"
+export LDA_FILE_10="$( pwd )/10/$(basename "$LDA_FILE" )"
+export LDA_FILE_30="$( pwd )/30/$(basename "$LDA_FILE" )"
+export LDA_FILE_60="$( pwd )/60/$(basename "$LDA_FILE" )"
+export LDA_FILE_120="$( pwd )/120/$(basename "$LDA_FILE" )"
+
+#cd ../tfidf
+
+#export TFIDF_FILE="$( cd "$(dirname "$TFIDF_FILE")" && pwd)/$(basename "$TFIDF_FILE" )"
 
 cd ..
 export ONTOLOGY_FILE="$( pwd )/$(basename "$ONTOLOGY_FILE" )"

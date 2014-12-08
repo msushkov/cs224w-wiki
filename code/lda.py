@@ -2,15 +2,22 @@ from gensim.corpora.wikicorpus import process_article, tokenize
 from gensim.corpora.mmcorpus import MmCorpus
 from gensim.corpora.dictionary import Dictionary
 from gensim.models.ldamodel import LdaModel
+from gensim.models.ldamodel import LdaModel
 import numpy as np
 import util
 import load_data
 import os.path
 import wiki_index
 
+NUM_TOPICS = 100
+
 DICTIONARY_FILE = os.environ['DICTIONARY_FILE']
 CORPUS_FILE = os.environ['CORPUS_FILE']
-LDA_FILE = os.environ['LDA_FILE']
+LDA_FILE_10 = os.environ['LDA_FILE_10']
+LDA_FILE_30 = os.environ['LDA_FILE_30']
+LDA_FILE_60 = os.environ['LDA_FILE_60']
+LDA_FILE_120 = os.environ['LDA_FILE_120']
+#TFIDF_FILE = os.environ['TFIDF_FILE']
 
 class BowCorpus(object):
     def __init__(self, fname, dictionary):
@@ -21,20 +28,37 @@ class BowCorpus(object):
             bow = self.dictionary.doc2bow(line.lower().split())
             yield bow
 
-def get_lda_model():
-    return lda.load(LDA_FILE)
+#def get_tfidf_model():
+#    if os.path.isfile(TFIDF_FILE):
+#        return 
+
+def get_lda_model(file_name):
+    return LdaModel.load(file_name)
 
 def get_dictionary():
-    return dictionary.load(DICTIONARY_FILE)
+    return Dictionary.load(DICTIONARY_FILE)
+
+def get_corpus():
+    return MmCorpus.load(CORPUS_FILE)
 
 def get_topics_for_article_name(article_name, lda_model, dictionary, article_name_to_linenum):
     article = wiki_index.get_article(article_name, article_name_to_linenum)
     doc_bow = dictionary.doc2bow(article)
     return lda_model[doc_bow]
 
-def get_topics(corpus, dictionary, num_topics):
+def get_topics(corpus, dictionary, num_topics=10):
+    if num_topics == 10:
+        file_name = LDA_FILE_10
+    elif num_topics == 30:
+        file_name = LDA_FILE_30
+    elif num_topics == 60:
+        file_name = LDA_FILE_60
+    elif num_topics == 120:
+        file_name = LDA_FILE_120
+    else:
+        raise ValueError("bad number of topics")
     lda = LdaModel(corpus=corpus, id2word=dictionary, num_topics=num_topics, update_every=1, chunksize=100, passes=1)
-    lda.save(LDA_FILE)
+    lda.save(file_name)
     for topic in range(10):
         print "Topic {0}: {1}".format(topic, lda.print_topic(topic))
     return lda
@@ -52,8 +76,15 @@ def build_corpus(dictionary):
     MmCorpus.serialize(CORPUS_FILE, BowCorpus(wiki_index.ARTICLES_FILE, dictionary))
     return MmCorpus(CORPUS_FILE)
 
-if not os.path.isfile(DICTIONARY_FILE) or not os.path.isfile(CORPUS_FILE) or not os.path.isfile(LDA_FILE):
+if not os.path.isfile(DICTIONARY_FILE) or not os.path.isfile(CORPUS_FILE):
+    print "Building dictionary..."
     dictionary = build_dictionary()
     print dictionary
+    print "Building corpus..."
     corpus = build_corpus(dictionary)
-    get_topics(corpus, dictionary, 10)
+    print corpus
+    print "Building lda model..."
+    get_topics(corpus, dictionary, NUM_TOPICS)
+    print "Done"
+
+
