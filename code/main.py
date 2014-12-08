@@ -168,7 +168,7 @@ def process_in_snappy():
     print "Printing info..."
 
     # print stats on max scc
-    snap.PrintInfo(G, "wiki_graph_max_scc", "", False)
+    snap.PrintInfo(G, "wiki_graph_max_scc", "", True)
 
 
 def create_snap_graph_from_adjlist():
@@ -237,4 +237,4 @@ def run_experiment():
 
 # print G.GetNodes()
 # print G.GetEdges()
-# snap.PrintInfo(G, "wiki_graph", "", False)
+# snap.PrintInfo(G, "wiki_graph", "", True)
