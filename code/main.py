@@ -152,10 +152,12 @@ def process_in_snappy():
         src_id = Edge.GetSrcNId()
         dst_id = Edge.GetDstNId()
     
-        if src_id not in new_adj_list:
-            new_adj_list[src_id] = np.array([], dtype=np.uint32)
-        
-        np.append(new_adj_list[src_id], np.uint32(dst_id))
+        num_src = np.uint32(src_id)
+        num_dst = np.uint32(dst_id)
+
+        if num_src not in new_adj_list:
+            new_adj_list[num_src] = np.array([], dtype=np.uint32)
+        new_adj_list[num_src] = np.append(new_adj_list[num_src], num_dst)
 
     # save adj_list and articles
     print "Saving to binary..."
