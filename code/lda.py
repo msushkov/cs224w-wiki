@@ -2,15 +2,13 @@ from gensim.corpora.wikicorpus import process_article, tokenize
 from gensim.corpora.mmcorpus import MmCorpus
 from gensim.corpora.dictionary import Dictionary
 from gensim.models.ldamodel import LdaModel
-from gensim.models.ldamodel import LdaModel
+from gensim.models.tfidfmodel import TfidfModel
 import numpy as np
-import util
-import load_data
 import os.path
 import wiki_index
 from scipy import linalg, mat, dot
 
-NUM_TOPICS = 100
+NUM_TOPICS = 10
 
 DICTIONARY_FILE = os.environ['DICTIONARY_FILE']
 CORPUS_FILE = os.environ['CORPUS_FILE']
@@ -18,7 +16,7 @@ LDA_FILE_10 = os.environ['LDA_FILE_10']
 LDA_FILE_30 = os.environ['LDA_FILE_30']
 LDA_FILE_60 = os.environ['LDA_FILE_60']
 LDA_FILE_120 = os.environ['LDA_FILE_120']
-#TFIDF_FILE = os.environ['TFIDF_FILE']
+TFIDF_FILE = os.environ['TFIDF_FILE']
 
 class BowCorpus(object):
     def __init__(self, fname, dictionary):
@@ -29,9 +27,21 @@ class BowCorpus(object):
             bow = self.dictionary.doc2bow(line.lower().split())
             yield bow
 
-#def get_tfidf_model():
-#    if os.path.isfile(TFIDF_FILE):
-#        return 
+def get_tfidf_for_doc(document):
+    bow = dictionary.doc2bow(document)
+    return tfidf[bow]
+
+def get_tfidf_for_article_name(article_name):
+    bow = dictionary.doc2bow(wiki_index.get_article(article_name))
+    return tfidf[bow]
+
+def get_tfidf_model():
+    if os.path.isfile(TFIDF_FILE):
+        return TfidfModel.load(TFIDF_FILE)
+    else:
+        model = TfidfModel(get_corpus(), get_dictionary())
+        model.save(TFIDF_FILE)
+        return model
 
 def get_lda_model(num_topics):
     file_name = None
@@ -55,10 +65,10 @@ def get_dictionary():
 def get_corpus():
     return MmCorpus(CORPUS_FILE)
 
-def get_topics_for_article_name(article_name, lda_model, dictionary, article_name_to_linenum):
-    article = wiki_index.get_article(article_name, article_name_to_linenum)
+def get_topics_for_article_name(article_name):
+    article = wiki_index.get_article(article_name)
     doc_bow = dictionary.doc2bow(article)
-    return lda_model[doc_bow]
+    return lda[doc_bow]
 
 # If corpus and dictionary are None then it takes them from files.
 # Returns the lda model object (after saving it to a file).
@@ -98,20 +108,6 @@ def build_corpus(dictionary):
     return MmCorpus(CORPUS_FILE)
 
 
-if not os.path.isfile(DICTIONARY_FILE) or not os.path.isfile(CORPUS_FILE):
-    print "Building dictionary..."
-    dictionary = build_dictionary()
-    print dictionary
-    print "Building corpus..."
-    corpus = build_corpus(dictionary)
-    print corpus
-    print "Building lda model..."
-    build_lda_model(corpus, dictionary, NUM_TOPICS)
-    print "Done"
-
-
-
-
 # Compute cosine similarity between 2 topic vectors
 # Each topic vector is a list of tuples: (topic_id, prob)
 def get_cosine_sim(vec1, vec2, num_topics):
@@ -131,3 +127,27 @@ def cos_sim(v1, v2):
     a = mat(v1)
     b = mat(v2)
     return float(dot(a,b.T)/linalg.norm(a)/linalg.norm(b))
+
+
+# Create variables
+if not os.path.isfile(DICTIONARY_FILE) or not os.path.isfile(CORPUS_FILE):
+    print "Building dictionary..."
+    dictionary = build_dictionary()
+    print dictionary
+    print "Building corpus..."
+    corpus = build_corpus(dictionary)
+    print corpus
+    print "Building lda model..."
+    lda = build_lda_model(corpus, dictionary, NUM_TOPICS)
+    print "Done"
+else:
+    print "Loading dictionary..."
+    dictionary = get_dictionary()
+    print "Loading corpus..."
+    corpus = get_corpus()
+    print "Loading lda model..."
+    lda = get_lda_model(NUM_TOPICS)
+
+print "Loading tfidf..."
+tfidf = get_tfidf_model()
+

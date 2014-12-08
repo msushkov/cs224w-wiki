@@ -28,7 +28,7 @@ def download_articles(article_names):
                     print "Error getting article"
 
 
-def get_article(article_name, article_name_to_linenum):
+def get_article(article_name):
     text = linecache.getline(ARTICLES_FILE, article_name_to_linenum[article_name])
     return text.lower().split()
 
@@ -46,4 +46,4 @@ def get_article_name_to_linenum():
 def build_indexes(articles):
     download_articles(articles)
 
-
+article_name_to_linenum = get_article_name_to_linenum()
