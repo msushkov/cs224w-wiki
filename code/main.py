@@ -3,8 +3,12 @@ import util
 import load_data
 import snap
 import numpy as np
+import os
 
 print "Starting main.py..."
+
+ARTICLE_NAMES_30K_FILE = os.environ['ARTICLE_NAMES_30K']
+ADJ_LIST_30K_FILE = os.environ['ADJ_LIST_30K']
 
 # Load necessary data structures from file (those computed in load_data)
 
@@ -183,6 +187,60 @@ def create_snap_graph_from_adjlist():
                 G1.AddNode(int(dst))
             G1.AddEdge(int(src), int(dst))
     return G1
+
+
+# Input: the graph object that is the max SCC of the wiki graph
+# Returns: a graph that is a subgraph of size 30k of the input graph
+def save_30k_articles(G):
+    NUM = 30000
+    articles_30k = set()
+    ids_30k = set()
+    curr_hop = 1
+    
+    first_article = random.choice(articles)
+    first_id = int(titles_to_linenum[name])
+    articles_30k.add(first_article)
+    ids_30k.add(first_id)
+
+    while len(articles_30k) < NUM:
+        NodeVec = snap.TIntV()
+        snap.GetNodesAtHop(G, first_id, curr_hop, NodeVec, True)
+        for next_id in NodeVec:
+            title = linenum_to_title[str(next_id)]
+            articles_30k.add(title)
+            ids_30k.add(next_id)
+        curr_hop += 1
+
+    print "It took %d hops to get to %d nodes!" % (curr_hop, NUM)
+
+    load_data.save_object(list(articles_30k), ARTICLE_NAMES_30K_FILE)
+
+    # save adj_list_30k
+    new_adj_list = {}
+
+    for key in adj_list.keys():
+        if key in ids_30k:
+            if key not in new_adj_list:
+                new_adj_list[key] = np.array([], dtype=np.uint32)
+
+            for node_id in adj_list[key]:
+                if node_id in ids_30k:
+                    new_adj_list[key] = np.append(new_adj_list[key], node_id)
+
+    load_data.save_object(new_adj_list, ADJ_LIST_30K_FILE)
+
+
+# Returns a list of 30k article names.
+def load_30k_articles():
+    return load_data.load_object(ARTICLE_NAMES_30K_FILE)
+
+# Returns an adjacency list dictionary.
+def load_30k_adj_list():
+    return load_data.load_object(ADJ_LIST_30K_FILE)
+
+def load_30k_graph_object():
+    return create_snap_graph_from_adjlist(load_30k_adj_list())
+
 
 #
 # RUN THE EXPERIMENT
