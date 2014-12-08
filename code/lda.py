@@ -6,6 +6,7 @@ from gensim.models.tfidfmodel import TfidfModel
 import numpy as np
 import os.path
 import wiki_index
+from scipy import linalg, mat, dot
 
 NUM_TOPICS = 10
 
@@ -107,6 +108,28 @@ def build_corpus(dictionary):
     return MmCorpus(CORPUS_FILE)
 
 
+# Compute cosine similarity between 2 topic vectors
+# Each topic vector is a list of tuples: (topic_id, prob)
+def get_cosine_sim(vec1, vec2, num_topics):
+    x1 = cos_sim_helper(vec1, num_topics)
+    x2 = cos_sim_helper(vec2, num_topics)
+    return cos_sim(x1, x2)
+
+# Input: list of (topic_id, prob)
+# Output: list of probabilities for each of the topics (including 0s)
+def cos_sim_helper(vec, num_topics):
+    result = [0.0] * num_topics
+    for (topic_id, prob) in vec:
+        result[topic_id] = prob
+    return result
+
+def cos_sim(v1, v2):
+    a = mat(v1)
+    b = mat(v2)
+    return float(dot(a,b.T)/linalg.norm(a)/linalg.norm(b))
+
+
+# Create variables
 if not os.path.isfile(DICTIONARY_FILE) or not os.path.isfile(CORPUS_FILE):
     print "Building dictionary..."
     dictionary = build_dictionary()
@@ -127,3 +150,4 @@ else:
 
 print "Loading tfidf..."
 tfidf = get_tfidf_model()
+
