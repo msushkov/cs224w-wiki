@@ -214,12 +214,14 @@ def run_experiment():
         (success_or_fail, predicted_distance) = util.run_decentralized_search(src_id, dst_id, \
             adj_list, linenum_to_title, util.get_article_distance)
 
+        # failure or error
         if success_or_fail == None or success_or_fail == "FAILURE":
             if success_or_fail != None:
                 print "%s. Article 1: %s, Article 2: %s" % \
                     (success_or_fail, article1_name, article2_name)
             else:
                 print "KeyError..."
+        # success
         else:
             num_success += 1
 
