@@ -8,7 +8,6 @@ import os.path
 import wiki_index
 from scipy import linalg, mat, dot
 
-NUM_TOPICS = 10
 
 DICTIONARY_FILE = os.environ['DICTIONARY_FILE']
 CORPUS_FILE = os.environ['CORPUS_FILE']
@@ -65,7 +64,18 @@ def get_dictionary():
 def get_corpus():
     return MmCorpus(CORPUS_FILE)
 
-def get_topics_for_article_name(article_name):
+def get_topics_for_article_name(article_name, num_topics):
+    if num_topics == 10:
+        model = lda_10
+    elif num_topics == 30:
+        model = lda_30
+    elif num_topics == 60:
+        model = lda_60
+    elif num_topics == 120:
+        model = lda_120
+    else:
+        raise ValueError("bad number of topics")
+
     article = wiki_index.get_article(article_name)
     doc_bow = dictionary.doc2bow(article)
     return lda[doc_bow]
@@ -130,24 +140,44 @@ def cos_sim(v1, v2):
 
 
 # Create variables
-if not os.path.isfile(DICTIONARY_FILE) or not os.path.isfile(CORPUS_FILE):
+if not os.path.isfile(DICTIONARY_FILE):
     print "Building dictionary..."
     dictionary = build_dictionary()
     print dictionary
-    print "Building corpus..."
-    corpus = build_corpus(dictionary)
-    print corpus
-    print "Building lda model..."
-    lda = build_lda_model(corpus, dictionary, NUM_TOPICS)
-    print "Done"
 else:
     print "Loading dictionary..."
     dictionary = get_dictionary()
+
+if not os.path.isfile(CORPUS_FILE):
+    print "Building corpus..."
+    corpus = build_corpus(dictionary)
+    print corpus
+else:
     print "Loading corpus..."
     corpus = get_corpus()
-    print "Loading lda model..."
-    lda = get_lda_model(NUM_TOPICS)
+    
+if not os.path.isfile(LDA_FILE_10):
+    print "Building lda model 10..."
+    lda_10 = build_lda_model(corpus, dictionary, 10)
+else:
+    print "Loading lda model 10..."
+    lda_10 = get_lda_model(10)
+
+if not os.path.isfile(LDA_FILE_30):
+    print "Building lda model 30..."
+    lda_30 = build_lda_model(corpus, dictionary, 30)
+else:
+    print "Loading lda model 30..."
+    lda_30 = get_lda_model(30)
+
+if not os.path.isfile(LDA_FILE_60):
+    print "Building lda model 60..."
+    lda_60 = build_lda_model(corpus, dictionary, 60)
+else:
+    print "Loading lda model 60..."
+    lda_60 = get_lda_model(60)
 
 print "Loading tfidf..."
 tfidf = get_tfidf_model()
+print "Done"
 
