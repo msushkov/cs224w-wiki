@@ -103,6 +103,11 @@ def get_article_distance(article1_name, article2_name, article_text_cache):
     result = len(w1.intersection(w2))
     return (article_text_cache, result)
 
+# Returns a list of NLP features for these articles.
+def extract_nlp_features(article1_name, article2_name):
+    # TODO
+    return []
+
 
 # Runs decentralized search
 # source and destination are indices into adj_list_arg

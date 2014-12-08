@@ -1,7 +1,7 @@
 import random
 import util
 import load_data
-#import snap
+import snap
 import numpy as np
 import os
 import wiki_index
@@ -116,9 +116,6 @@ def lowest_common_ancestor(root, node1, node2):
         else:
             return last_equal
 
-
-
-
 #
 # GRAPH PROCESSING
 #
@@ -189,6 +186,9 @@ def create_snap_graph_from_adjlist():
             G1.AddEdge(int(src), int(dst))
     return G1
 
+def get_graph_shortest_path(G, node1_id, node2_id):
+    return snap.GetShortPath(G, node1_id, node2_id, True)
+
 
 # Input: the graph object that is the max SCC of the wiki graph
 # Returns: a graph that is a subgraph of size 30k of the input graph
@@ -249,6 +249,7 @@ def build_index():
 # RUN THE EXPERIMENT
 #
 
+# runs decentralized search
 def run_experiment():
     N = 5
     num_success = 0
@@ -288,11 +289,46 @@ def run_experiment():
             print "%s. Article 1: %s, Article 2: %s, Predicted distance = %d, Ontology distance = %d" % \
                 (success_or_fail, article1_name, article2_name, predicted_distance, ontology_distance)
 
-#run_experiment()
 
-# G = create_snap_graph_from_adjlist()
+# Tries to learn the shortest path as a function of the features.
+def run_ml_on_distances():
+    NUM_TRIALS = 100
+    count = 0
 
-# print G.GetNodes()
-# print G.GetEdges()
+    # holds tuples of (article1_name, article2_name, shortest_path)
+    actual_shortest_path = []
+
+    # holds tuples of (article1_name, article2_name, [feat1, feat2, ...])
+    nlp_features = []
+
+    articles_30k = load_30k_articles()
+    G = load_30k_graph_object()
+
+    # go through NUM_TRIALS random article pairs
+    while count < NUM_TRIALS:
+        article1_name = random.choice(articles)
+        article2_name = random.choice(articles)
+        while article1_name == article2_name:
+            article2_name = random.choice(articles)
+
+        print "Article 1: %s, article 2: %s" % (article1_name, article2_name)
+
+        src_id = int(title_to_linenum[article1_name])
+        dst_id = int(title_to_linenum[article2_name])
+
+        actual_shortest_path = get_graph_shortest_path(G, src_id, dst_id)
+        features = util.extract_nlp_features(article1_name, article2_name)
+
+        curr_actual = (article1_name, article2_name, actual_shortest_path)
+        curr_feat = (article1_name, article2_name, features)
+
+        actual_shortest_path.append(curr_actual)
+        nlp_features.append(curr_feat)
+
+    # TODO
+    # now we have the actual distances and the features. do regression on them.
+    # error will be MSE on the distance
+
+
 # snap.PrintInfo(G, "wiki_graph", "", True)
-build_index()
+# build_index()
