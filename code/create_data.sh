@@ -60,5 +60,10 @@ export LDA_FILE="$( cd "$(dirname "$LDA_FILE")" && pwd)/$(basename "$LDA_FILE" )
 cd ..
 export ONTOLOGY_FILE="$( pwd )/$(basename "$ONTOLOGY_FILE" )"
 
-cd ../code
+cd ../code/bin
+
+export ARTICLE_NAMES_30K="$( pwd )/article_names_30k.pk1"
+export ADJ_LIST_30K="$( pwd )/adj_list_30k.pk1"
+
+cd ..
 echo "Done."

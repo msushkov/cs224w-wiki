@@ -3,3 +3,4 @@ data/edges/titles.txt
 data/instance_types/instance_types.txt
 *.pyc
 *.pk1
+!code/article_names_30k.pk1
