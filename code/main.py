@@ -75,6 +75,7 @@ def get_height(article_name):
         return None
 
 # Get the path length through the lowest common ancestor in the ontology tree.
+# Returns a tuple of (dist, lca_height)
 def get_ontology_distance(article1_name, article2_name):
     article1_height = get_height(article1_name)
     article2_height = get_height(article2_name)
@@ -85,8 +86,8 @@ def get_ontology_distance(article1_name, article2_name):
     lca_height = get_height(lowest_common_ancestor(type_to_node["ROOT"], \
         article1_type_node, article2_type_node))
 
-    return abs(float(lca_height) - article1_height) + \
-        abs(float(lca_height) - article2_height)
+    return (abs(float(lca_height) - article1_height) + \
+        abs(float(lca_height) - article2_height), lca_height)
 
 # append the string names to path
 def get_path(root, node, path):
