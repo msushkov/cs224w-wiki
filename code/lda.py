@@ -26,13 +26,13 @@ class BowCorpus(object):
             bow = self.dictionary.doc2bow(line.lower().split())
             yield bow
 
-def get_tfidf_score_for_doc(document):
+def get_tfidf_for_doc(document):
     bow = dictionary.doc2bow(document)
     return tfidf[bow]
 
-def get_tfidf_score_for_article_name(article_name):
+def get_tfidf_for_article_name(article_name):
     bow = dictionary.doc2bow(wiki_index.get_article(article_name))
-    return tfidf_mode[bow]
+    return tfidf[bow]
 
 def get_tfidf_model():
     if os.path.isfile(TFIDF_FILE):
@@ -67,7 +67,7 @@ def get_corpus():
 def get_topics_for_article_name(article_name):
     article = wiki_index.get_article(article_name)
     doc_bow = dictionary.doc2bow(article)
-    return lda_model[doc_bow]
+    return lda[doc_bow]
 
 # If corpus and dictionary are None then it takes them from files.
 # Returns the lda model object (after saving it to a file).
