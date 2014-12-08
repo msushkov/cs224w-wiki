@@ -61,9 +61,9 @@ export LDA_FILE_30="$( pwd )/30/$(basename "$LDA_FILE" )"
 export LDA_FILE_60="$( pwd )/60/$(basename "$LDA_FILE" )"
 export LDA_FILE_120="$( pwd )/120/$(basename "$LDA_FILE" )"
 
-#cd ../tfidf
+cd ../tfidf
 
-#export TFIDF_FILE="$( cd "$(dirname "$TFIDF_FILE")" && pwd)/$(basename "$TFIDF_FILE" )"
+export TFIDF_FILE="$( cd "$(dirname "$TFIDF_FILE")" && pwd)/$(basename "$TFIDF_FILE" )"
 
 cd ..
 export ONTOLOGY_FILE="$( pwd )/$(basename "$ONTOLOGY_FILE" )"
