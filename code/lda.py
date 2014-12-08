@@ -177,6 +177,13 @@ else:
     print "Loading lda model 60..."
     lda_60 = get_lda_model(60)
 
+if not os.path.isfile(LDA_FILE_120):
+    print "Building lda model 120..."
+    lda_120 = build_lda_model(corpus, dictionary, 30)
+else:
+    print "Loading lda model 120..."
+    lda_120 = get_lda_model(120)
+
 print "Loading tfidf..."
 tfidf = get_tfidf_model()
 print "Done"
