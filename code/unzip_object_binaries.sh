@@ -11,6 +11,8 @@ TITLE_TO_LINENUM=title_to_linenum.pk1
 TYPE_TO_DEPTH=type_to_depth.pk1
 NAME_TO_TYPE=name_to_type.pk1
 
+
+
 cd bin
 
 # if the unzipped files don't exist, unzip them
@@ -40,3 +42,13 @@ if [ ! -f "$NAME_TO_TYPE" ]; then
 fi
 
 cd ..
+
+cd ../data/lda
+
+CORPUS=corpus.txt
+
+if [ ! -f "$CORPUS" ]; then
+    bunzip2 "$CORPUS.bz2"
+fi
+
+cd ../../code

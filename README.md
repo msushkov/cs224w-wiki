@@ -21,8 +21,3 @@ Now you are ready to easily load the data into memory and use it to run experime
 A visual representation of the ontology:
 http://mappings.dbpedia.org/server/ontology/classes/
 
-
-# TODOs
-- update wiki api call to get all neighbors' text at once (fetch articles in the search; have distance function take in lists of words rather than article names)
-- featurize article pairs: framework for feature extraction (pass in method)
-- ML infrastructure (scikit learn)

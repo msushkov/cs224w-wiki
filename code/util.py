@@ -4,6 +4,8 @@ import nltk
 from HTMLParser import HTMLParser
 import string
 import os
+import wiki_index
+import main
 
 STOP_WORDS_FILE = os.environ['STOP_WORDS_FILE']
 
@@ -102,6 +104,42 @@ def get_article_distance(article1_name, article2_name, article_text_cache):
 
     result = len(w1.intersection(w2))
     return (article_text_cache, result)
+
+# Returns a list of NLP features for these articles.
+def extract_nlp_features(article1_name, article2_name):
+    article_name_to_linenum = wiki_index.get_article_name_to_linenum()
+
+    # lists of words
+    article1_text = wiki_index.get_article(article1_name, article_name_to_linenum)
+    article2_text = wiki_index.get_article(article2_name, article_name_to_linenum)
+
+    return get_features(article1_text, article2_text)
+
+# Input: 2 lists of words
+def get_features(article1_words, article2_words):
+    features = []
+
+    # feature 1: number of words in overlap
+    feat1 = len(set(article1_words).intersection(set(article2_words)))
+    features.append(feat1)
+
+    # feature 2: lda - distance between topic distribution vectors for the articles
+    # TODO
+    feat2 = 0.0
+    features.append(feat2)
+
+    # feature 3: TF-IDF - cosine distance
+    # TODO
+    feat3 = 0.0
+    features.append(feat3)
+
+    # feature 4: ontology distance (length of path through LCA)
+    # feature 5: ontology height of LCA
+    (feat4, feat5) = main.get_ontology_distance(article1_name, article2_name)
+    features.append(feat4)
+    features.append(feat5)
+
+    return features
 
 
 # Runs decentralized search
