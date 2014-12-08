@@ -10,6 +10,11 @@ EDGES_FILE=links.txt
 TITLES_FILE=titles.txt
 INSTANCE_TYPES_FILE=instance_types.txt
 ONTOLOGY_FILE=tree_links.txt
+WIKI_FILE=articles.txt
+INDEX_FILE=index.txt
+DICTIONARY_FILE=dictionary.txt
+CORPUS_FILE=corpus.txt
+LDA_FILE=lda.txt
 
 cd ../data
 
@@ -40,6 +45,17 @@ cd ../edges
 
 export EDGES_FILE="$( cd "$(dirname "$EDGES_FILE")" && pwd)/$(basename "$EDGES_FILE" )"
 export TITLES_FILE="$( cd "$(dirname "$TITLES_FILE")" && pwd)/$(basename "$TITLES_FILE" )"
+
+cd ../wiki_index
+
+export WIKI_FILE="$( cd "$(dirname "$WIKI_FILE")" && pwd)/$(basename "$WIKI_FILE" )"
+export INDEX_FILE="$( cd "$(dirname "$INDEX_FILE")" && pwd)/$(basename "$INDEX_FILE" )"
+
+cd ../lda
+
+export DICTIONARY_FILE="$( cd "$(dirname "$DICTIONARY_FILE")" && pwd)/$(basename "$DICTIONARY_FILE" )"
+export CORPUS_FILE="$( cd "$(dirname "$CORPUS_FILE")" && pwd)/$(basename "$CORPUS_FILE" )"
+export LDA_FILE="$( cd "$(dirname "$LDA_FILE")" && pwd)/$(basename "$LDA_FILE" )"
 
 cd ..
 export ONTOLOGY_FILE="$( pwd )/$(basename "$ONTOLOGY_FILE" )"
