@@ -132,43 +132,37 @@ def process_in_snappy():
 
     G = snap.GetMxScc(G1)
 
-    print "Size of max SCC: %s" % str(G.GetNodes())
-
-    # get the node ids of nodes in the largest SCC. from now on, use this as the Wiki graph
-    node_ids = set()
-    for node in G.Nodes():
-        node_ids.add(node.GetId())
+    print "Size of max SCC (nodes): %s" % str(G.GetNodes())
+    print "Size of max SCC (edges): %s" % str(G.GetEdges())
 
     # update articles
     print "Updating articles..."
     new_articles = []
-    for article_name in articles:
-        node_id = int(title_to_linenum[article_name])
-        if node_id in node_ids:
-            new_articles.append(article_name)
+    for node in G.Nodes():
+        node_id = node.GetId()
+        article_name = linenum_to_title[str(node_id)]
+        new_articles.append(article_name)
+
+    print "Length of new articles = %d" % len(new_articles)
 
     # update adj_list
     print "Updating adj_list..."
     new_adj_list = {}
-    for src_id in adj_list.keys():
-        if src_id in node_ids:
-            if src_id not in new_adj_list:
-                new_adj_list[src_id] = np.array([], dtype=np.uint32)
-
-            for dst_id in adj_list[src_id]:
-                if int(dst_id) in node_ids:
-                    np.append(new_adj_list[src_id], np.uint32(dst_id))
+    for Edge in G.Edges():
+        src_id = Edge.GetSrcNId()
+        dst_id = Edge.GetDstNId()
+    
+        if src_id not in new_adj_list:
+            new_adj_list[src_id] = np.array([], dtype=np.uint32)
+        
+        np.append(new_adj_list[src_id], np.uint32(dst_id))
 
     # save adj_list and articles
+    print "Saving to binary..."
     articles = new_articles
     adj_list = new_adj_list
     load_data.save_object(new_adj_list, "bin/adj_list.pk1")
     load_data.save_object(new_articles, "bin/article_names.pk1")
-
-    print "Printing info..."
-
-    # print stats on max scc
-    snap.PrintInfo(G, "wiki_graph_max_scc", "", True)
 
 
 def create_snap_graph_from_adjlist():
