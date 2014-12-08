@@ -3,5 +3,6 @@ data/edges/titles.txt
 data/instance_types/instance_types.txt
 *.pyc
 *.pk1
+data/wiki_index/articles.txt
 !code/bin/article_names_30k.pk1
 !code/bin/adj_list_30k.pk1
