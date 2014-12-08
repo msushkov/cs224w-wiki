@@ -29,7 +29,8 @@ def download_articles(article_names):
 
 
 def get_article(article_name, article_name_to_linenum):
-    return linecache.getline(ARTICLES_FILE, article_name_to_linenum[article_name])
+    text = linecache.getline(ARTICLES_FILE, article_name_to_linenum[article_name])
+    return text.lower().split()
 
 def get_article_name_to_linenum():
     article_name_to_linenum = {}
@@ -42,11 +43,7 @@ def get_article_name_to_linenum():
             line_num += 1
     return article_name_to_linenum
 
+def build_indexes(articles):
+    download_articles(articles)
 
-# download articles
-if not os.path.isfile(INDEX_FILE) or not os.path.isfile(ARTICLES_FILE):
-    download_articles(["Metropolitan_area", "Washington_metropolitan_area", "The_Hunger_Games", "Stanford_University", "Washington,_D.C.", "Washington_Redskins", "asdfasdgasfg"])
-
-#print get_article("Washington_Redskins", get_article_name_to_linenum())
-#print get_article("Washington,_D.C.")
 

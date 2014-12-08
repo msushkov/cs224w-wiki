@@ -1,9 +1,10 @@
 import random
 import util
 import load_data
-import snap
+#import snap
 import numpy as np
 import os
+import wiki_index
 
 print "Starting main.py..."
 
@@ -241,6 +242,8 @@ def load_30k_adj_list():
 def load_30k_graph_object():
     return create_snap_graph_from_adjlist(load_30k_adj_list())
 
+def build_index():
+    wiki_index.build_indexes(load_30k_articles())
 
 #
 # RUN THE EXPERIMENT
@@ -292,3 +295,4 @@ def run_experiment():
 # print G.GetNodes()
 # print G.GetEdges()
 # snap.PrintInfo(G, "wiki_graph", "", True)
+build_index()

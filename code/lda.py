@@ -21,6 +21,17 @@ class BowCorpus(object):
             bow = self.dictionary.doc2bow(line.lower().split())
             yield bow
 
+def get_lda_model():
+    return lda.load(LDA_FILE)
+
+def get_dictionary():
+    return dictionary.load(DICTIONARY_FILE)
+
+def get_topics_for_article_name(article_name, lda_model, dictionary, article_name_to_linenum):
+    article = wiki_index.get_article(article_name, article_name_to_linenum)
+    doc_bow = dictionary.doc2bow(article)
+    return lda_model[doc_bow]
+
 def get_topics(corpus, dictionary, num_topics):
     lda = LdaModel(corpus=corpus, id2word=dictionary, num_topics=num_topics, update_every=1, chunksize=100, passes=1)
     lda.save(LDA_FILE)
