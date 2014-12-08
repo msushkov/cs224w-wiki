@@ -32,7 +32,20 @@ class BowCorpus(object):
 #    if os.path.isfile(TFIDF_FILE):
 #        return 
 
-def get_lda_model(file_name):
+def get_lda_model(num_topics):
+    file_name = None
+    
+    if num_topics == 10:
+        file_name = LDA_FILE_10
+    elif num_topics == 30:
+        file_name = LDA_FILE_30
+    elif num_topics == 60:
+        file_name = LDA_FILE_60
+    elif num_topics == 120:
+        file_name = LDA_FILE_120
+    else:
+        raise ValueError("bad number of topics")
+
     return LdaModel.load(file_name)
 
 def get_dictionary():
@@ -46,7 +59,14 @@ def get_topics_for_article_name(article_name, lda_model, dictionary, article_nam
     doc_bow = dictionary.doc2bow(article)
     return lda_model[doc_bow]
 
-def get_topics(corpus, dictionary, num_topics=10):
+# If corpus and dictionary are None then it takes them from files.
+# Returns the lda model object (after saving it to a file).
+def build_lda_model(corpus, dictionary, num_topics=10):
+    if corpus == None:
+        corpus = get_corpus()
+    if dictionary == None:
+        dictionary = get_dictionary()
+
     if num_topics == 10:
         file_name = LDA_FILE_10
     elif num_topics == 30:
@@ -76,6 +96,7 @@ def build_corpus(dictionary):
     MmCorpus.serialize(CORPUS_FILE, BowCorpus(wiki_index.ARTICLES_FILE, dictionary))
     return MmCorpus(CORPUS_FILE)
 
+
 if not os.path.isfile(DICTIONARY_FILE) or not os.path.isfile(CORPUS_FILE):
     print "Building dictionary..."
     dictionary = build_dictionary()
@@ -84,7 +105,7 @@ if not os.path.isfile(DICTIONARY_FILE) or not os.path.isfile(CORPUS_FILE):
     corpus = build_corpus(dictionary)
     print corpus
     print "Building lda model..."
-    get_topics(corpus, dictionary, NUM_TOPICS)
+    build_lda_model(corpus, dictionary, NUM_TOPICS)
     print "Done"
 
 
