@@ -76,7 +76,7 @@ def get_height(article_name):
         raise KeyError
 
 # Get the path length through the lowest common ancestor in the ontology tree.
-# Returns a tuple of (dist, lca_height)
+# Returns a tuple of (article1_height, article2_height, lca_height)
 def get_ontology_distance(article1_name, article2_name):
     article1_height = get_height(article1_name)
     article2_height = get_height(article2_name)
@@ -94,8 +94,9 @@ def get_ontology_distance(article1_name, article2_name):
     lca = lowest_common_ancestor(root_node, article1_type_node, article2_type_node)
     lca_height = get_height(lca)
 
-    return (abs(float(lca_height) - article1_height) + \
-        abs(float(lca_height) - article2_height), lca_height)
+    #return (abs(float(lca_height) - article1_height) + \
+    #    abs(float(lca_height) - article2_height), lca_height)
+    return (article1_height, article2_height, lca_height)
 
 # append the string names to path
 def get_path(root, node, path):
@@ -354,7 +355,6 @@ def run_ml_on_distances():
         for (article1_name, article2_name) in article_pairs[:1000]:
             if count % 100 == 0:
                 print count
-            count += 1
 
             try:
                 #print "Article 1: %s, article 2: %s" % (article1_name, article2_name)
@@ -363,8 +363,9 @@ def run_ml_on_distances():
                 dst_id = int(title_to_linenum[article2_name])
 
                 #path_length = get_graph_shortest_path(G, src_id, dst_id)
-                path_length = get_ontology_distance(article1_name, article2_name)
-                print path_length
+                (article1_height, article2_height, lca_height) = get_ontology_distance(article1_name, article2_name)
+                print (article1_height, article2_height, lca_height)
+                
                 features = util.extract_nlp_features(article1_name, article2_name, num_lda_topics, name_to_type, type_to_depth, type_to_node)
 
                 curr_actual = (article1_name, article2_name, path_length)
@@ -372,8 +373,11 @@ def run_ml_on_distances():
 
                 actual_shortest_path.append(curr_actual)
                 nlp_features.append(curr_feat)
+
+                count += 1
+
             except KeyError:
-                continue
+                raise KeyError
 
         #save_pairwise_distances(actual_shortest_path)
 
