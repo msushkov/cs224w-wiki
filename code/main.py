@@ -335,7 +335,8 @@ def run_experiment():
 # Tries to learn the shortest path as a function of the features.
 def run_ml_on_distances():
     count = 0
-    num_lda_topics_list = [10, 30, 60]
+    #num_lda_topics_list = [10, 30, 60]
+    num_lda_topics_list = [10]
 
     # holds tuples of (article1_name, article2_name, shortest_path)
     actual_shortest_path = []
@@ -363,6 +364,7 @@ def run_ml_on_distances():
 
                 #path_length = get_graph_shortest_path(G, src_id, dst_id)
                 path_length = get_ontology_distance(article1_name, article2_name)
+                print path_length
                 features = util.extract_nlp_features(article1_name, article2_name, num_lda_topics, name_to_type, type_to_depth, type_to_node)
 
                 curr_actual = (article1_name, article2_name, path_length)
@@ -381,7 +383,8 @@ def run_ml_on_distances():
         # error will be MSE on the distance
         score = ml.run_ml(nlp_features, actual_shortest_path, True)
 
-        print "Score = %f, Num LDA topics = %d" % (score, num_lda_topics)
+        print "Num LDA topics = %d" % num_lda_topics
+        print score
 
 
 run_ml_on_distances()
