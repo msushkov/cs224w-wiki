@@ -106,7 +106,7 @@ def get_path(root, node, path):
     if root.value != node.value:
         for child in root.get_children():
             p = get_path(child, node, new_path)
-            if p not None:
+            if p != None:
                 return p
         return None
     else:
