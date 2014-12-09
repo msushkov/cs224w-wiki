@@ -131,7 +131,7 @@ def process_in_snappy():
 
     print "Starting graph processing..."
 
-    G1 = create_snap_graph_from_adjlist()
+    G1 = create_snap_graph_from_adjlist(adj_list)
 
     print "Finding largest CC..."
 
@@ -172,10 +172,10 @@ def process_in_snappy():
     load_data.save_object(new_articles, "bin/article_names.pk1")
 
 
-def create_snap_graph_from_adjlist():
+def create_snap_graph_from_adjlist(adj_list_arg):
     G1 = snap.TNGraph.New()
     c = 0
-    for src in adj_list:
+    for src in adj_list_arg:
         c += 1
         if c % 10000 == 0:
             print "Finished %d..." % c
@@ -183,7 +183,7 @@ def create_snap_graph_from_adjlist():
         if not G1.IsNode(int(src)):
             G1.AddNode(int(src))
 
-        for dst in adj_list[src]:
+        for dst in adj_list_arg[src]:
             if not G1.IsNode(int(dst)):
                 G1.AddNode(int(dst))
             G1.AddEdge(int(src), int(dst))
