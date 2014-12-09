@@ -342,7 +342,6 @@ def run_ml_on_distances():
         actual_shortest_path.append(curr_actual)
         nlp_features.append(curr_feat)
 
-    # TODO
     # now we have the actual distances and the features. do regression on them.
     # error will be MSE on the distance
 

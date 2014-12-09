@@ -116,21 +116,23 @@ def extract_nlp_features(article1_name, article2_name):
     return get_features(article1_text, article2_text)
 
 # Input: 2 lists of words
-def get_features(article1_words, article2_words):
+def get_features(article1_name, article2_name, article1_words, article2_words, num_lda_topics=10):
     features = []
 
     # feature 1: number of words in overlap
     feat1 = len(set(article1_words).intersection(set(article2_words)))
     features.append(feat1)
 
-    # feature 2: lda - distance between topic distribution vectors for the articles
-    # TODO
-    feat2 = 0.0
+    # feature 2: lda - Hellinger distance betwene topic distributions
+    vec1 = lda.get_topics_for_article_text(article1_words, num_lda_topics)
+    vec2 = lda.get_topics_for_article_text(article2_words, num_lda_topics)
+    feat2 = lda.get_cosine_sim(vec1, vec2)
     features.append(feat2)
 
-    # feature 3: TF-IDF - cosine distance
-    # TODO
-    feat3 = 0.0
+    # feature 3: TF-IDF - cosine sim
+    vec1 = lda.get_tfidf_for_doc(article1_words)
+    vec2 = lda.get_tfidf_for_doc(article2_words)
+    feat3 = lda.get_hellinger(vec1, vec2, num_lda_topics)
     features.append(feat3)
 
     # feature 4: ontology distance (length of path through LCA)
