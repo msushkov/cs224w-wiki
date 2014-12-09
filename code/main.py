@@ -21,6 +21,7 @@ title_to_linenum = load_data.load_object("bin/title_to_linenum.pk1")
 linenum_to_title = load_data.load_object("bin/linenum_to_title.pk1")
 adj_list = load_data.load_object("bin/adj_list.pk1")
 type_to_depth = load_data.load_object("bin/type_to_depth.pk1")
+type_to_node = load_data.load_object("bin/type_to_node.pk1")
 
 print "Loaded objects from binary files."
 

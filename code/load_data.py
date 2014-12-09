@@ -317,3 +317,7 @@ def run_data_processing():
     save_object(type_to_depth, "bin/type_to_depth.pk1")
 
 #run_data_processing()
+
+def save_type_to_node():
+    process_ontology_file()
+    save_object(type_to_node, "bin/type_to_node.pk1")
