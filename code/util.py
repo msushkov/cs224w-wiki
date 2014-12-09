@@ -176,14 +176,14 @@ def get_features(article1_name, article2_name, article1_words, article2_words, n
     features = []
 
     # feature 1: number of words in overlap
-    feat1 = len(set(article1_words).intersection(set(article2_words)))
-    features.append(feat1)
+    # feat1 = len(set(article1_words).intersection(set(article2_words)))
+    # features.append(feat1)
 
     # feature 2: lda - Hellinger distance betwene topic distributions
-    vec1 = lda.get_topics_for_article_text(article1_words, num_lda_topics)
-    vec2 = lda.get_topics_for_article_text(article2_words, num_lda_topics)
-    feat2 = lda.get_hellinger(vec1, vec2, num_lda_topics)
-    features.append(feat2)
+    # vec1 = lda.get_topics_for_article_text(article1_words, num_lda_topics)
+    # vec2 = lda.get_topics_for_article_text(article2_words, num_lda_topics)
+    # feat2 = lda.get_hellinger(vec1, vec2, num_lda_topics)
+    # features.append(feat2)
 
     # feature 3: TF-IDF - cosine sim
     vec1 = lda.get_tfidf_for_doc(article1_words)
