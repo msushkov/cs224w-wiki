@@ -1,6 +1,8 @@
 import numpy as np
 from sklearn.linear_model import LinearRegression
 from sklearn import cross_validation
+from sklearn.svm import SVR
+from sklearn import preprocessing
 
 # Input: list of features and a list of the same length of the actual distance
 # Output: numpy 2D array (design matrix), numpy 1D array of the output variable
@@ -17,7 +19,7 @@ def create_design_matrix_and_labels(nlp_features, actual_shortest_path):
         design_matrix.append(feats)
         output_vector.append(curr_path_len)
 
-    return (np.array(design_matrix), np.array(output_vector))
+    return (preprocessing.scale(np.array(design_matrix)), np.array(output_vector))
 
 def split_test_dev_train(X, y, test_size, dev_size):
     X_test = X[0:test_size, :]
