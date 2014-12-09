@@ -389,10 +389,10 @@ def run_ml_on_distances():
 
         # now we have the actual distances and the features. do regression on them.
         # error will be MSE on the distance
-        score = ml.run_ml(nlp_features, actual_shortest_path, True)
+        (score_dev, score_train) = ml.run_ml(nlp_features, actual_shortest_path, True)
 
         print "Num LDA topics = %d" % num_lda_topics
-        print score
+        print (score_dev, score_train)
 
 
 run_ml_on_distances()

@@ -175,8 +175,10 @@ def extract_nlp_features(article1_name, article2_name, num_lda_topics, name_to_t
 def get_features(article1_name, article2_name, article1_words, article2_words, num_lda_topics, name_to_type, type_to_depth, type_to_node):
     features = []
 
-    # feature 1: number of words in overlap
-    feat1 = len(set(article1_words).intersection(set(article2_words)))
+    # feature 1: number of words in overlap (Jaccard sim)
+    size_int = float(len(set(article1_words).intersection(set(article2_words))))
+    size_union = float(len(set(article1_words).union(set(article2_words))))
+    feat1 = size_int / size_union
     features.append(feat1)
 
     # feature 2: lda - Hellinger distance betwene topic distributions
@@ -190,6 +192,12 @@ def get_features(article1_name, article2_name, article1_words, article2_words, n
     vec2 = lda.get_tfidf_for_doc(article2_words)
     feat3 = lda.get_cosine_sim(vec1, vec2)
     features.append(feat3)
+
+    # feature 4: num words of article 1
+    features.append(len(article1_words))
+
+    # feature 5: num words of article 2
+    features.append(len(article2_words))
 
     return features
 
