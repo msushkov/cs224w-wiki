@@ -336,19 +336,28 @@ def run_ml_on_distances():
     article_pairs = load_article_pairs()
 
     for (article1_name, article2_name) in article_pairs:
-        print "Article 1: %s, article 2: %s" % (article1_name, article2_name)
+        if count % 1000 == 0:
+            print count
+        count += 1
 
-        src_id = int(title_to_linenum[article1_name])
-        dst_id = int(title_to_linenum[article2_name])
+        try:
+            print "Article 1: %s, article 2: %s" % (article1_name, article2_name)
 
-        path_length = get_graph_shortest_path(G, src_id, dst_id)
-        features = util.extract_nlp_features(article1_name, article2_name, num_lda_topics, name_to_type, type_to_depth, type_to_node)
+            src_id = int(title_to_linenum[article1_name])
+            dst_id = int(title_to_linenum[article2_name])
 
-        curr_actual = (article1_name, article2_name, path_length)
-        curr_feat = (article1_name, article2_name, features)
+            path_length = get_graph_shortest_path(G, src_id, dst_id)
+            features = util.extract_nlp_features(article1_name, article2_name, num_lda_topics, name_to_type, type_to_depth, type_to_node)
 
-        actual_shortest_path.append(curr_actual)
-        nlp_features.append(curr_feat)
+            curr_actual = (article1_name, article2_name, path_length)
+            curr_feat = (article1_name, article2_name, features)
+
+            actual_shortest_path.append(curr_actual)
+            nlp_features.append(curr_feat)
+        except KeyError:
+            continue
+
+    print "Number of article pairs actually analyzed: %d" % len(nlp_features)
 
     # now we have the actual distances and the features. do regression on them.
     # error will be MSE on the distance
