@@ -64,6 +64,21 @@ def get_dictionary():
 def get_corpus():
     return MmCorpus(CORPUS_FILE)
 
+def get_topics_for_article_text(article_text, num_topics):
+    if num_topics == 10:
+        model = lda_10
+    elif num_topics == 30:
+        model = lda_30
+    elif num_topics == 60:
+        model = lda_60
+    elif num_topics == 120:
+        model = lda_120
+    else:
+        raise ValueError("bad number of topics")
+
+    doc_bow = dictionary.doc2bow(article_text)
+    return lda[doc_bow]
+
 def get_topics_for_article_name(article_name, num_topics):
     if num_topics == 10:
         model = lda_10
