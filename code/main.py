@@ -367,12 +367,11 @@ def run_ml_on_distances():
                 dst_id = int(title_to_linenum[article2_name])
 
                 #path_length = get_graph_shortest_path(G, src_id, dst_id)
-                (article1_height, article2_height, lca_height) = get_ontology_distance(article1_name, article2_name)
-                print (article1_height, article2_height, lca_height)
+                (path_length, lca_height) = get_ontology_distance(article1_name, article2_name)
                 
                 features = util.extract_nlp_features(article1_name, article2_name, num_lda_topics, name_to_type, type_to_depth, type_to_node)
 
-                curr_actual = (article1_name, article2_name, lca_height)
+                curr_actual = (article1_name, article2_name, path_length)
                 curr_feat = (article1_name, article2_name, features)
 
                 actual_shortest_path.append(curr_actual)
