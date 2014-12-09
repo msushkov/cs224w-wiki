@@ -3,6 +3,7 @@ from gensim.corpora.mmcorpus import MmCorpus
 from gensim.corpora.dictionary import Dictionary
 from gensim.models.ldamodel import LdaModel
 from gensim.models.tfidfmodel import TfidfModel
+from gensim.matutils import cossim, sparse2full
 import numpy as np
 import os.path
 import wiki_index
@@ -140,7 +141,7 @@ def build_corpus(dictionary):
 # Compute cosine similarity between 2 topic vectors
 # Each topic vector is a list of tuples: (topic_id, prob)
 def get_cosine_sim(vec1, vec2):
-    return gensim.matutils.cossim(vec1, vec2)
+    return cossim(vec1, vec2)
 
 # Input: list of (topic_id, prob)
 # Output: list of probabilities for each of the topics (including 0s)
@@ -156,8 +157,8 @@ def cos_sim(v1, v2):
     return float(dot(a,b.T)/linalg.norm(a)/linalg.norm(b))
 
 def get_hellinger(vec1, vec2, num_lda_topics):
-    dense1 = gensim.matutils.sparse2full(vec1, num_lda_topics)
-    dense2 = gensim.matutils.sparse2full(vec2, num_lda_topics)
+    dense1 = sparse2full(vec1, num_lda_topics)
+    dense2 = sparse2full(vec2, num_lda_topics)
     return np.sqrt(0.5 * ((np.sqrt(dense1) - np.sqrt(dense2))**2).sum())
 
 
