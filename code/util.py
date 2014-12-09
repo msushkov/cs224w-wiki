@@ -182,13 +182,13 @@ def get_features(article1_name, article2_name, article1_words, article2_words, n
     # feature 2: lda - Hellinger distance betwene topic distributions
     vec1 = lda.get_topics_for_article_text(article1_words, num_lda_topics)
     vec2 = lda.get_topics_for_article_text(article2_words, num_lda_topics)
-    feat2 = lda.get_cosine_sim(vec1, vec2)
+    feat2 = lda.get_hellinger(vec1, vec2, num_lda_topics)
     features.append(feat2)
 
     # feature 3: TF-IDF - cosine sim
     vec1 = lda.get_tfidf_for_doc(article1_words)
     vec2 = lda.get_tfidf_for_doc(article2_words)
-    feat3 = lda.get_hellinger(vec1, vec2, num_lda_topics)
+    feat3 = lda.get_cosine_sim(vec1, vec2)
     features.append(feat3)
 
     # feature 4: ontology distance (length of path through LCA)
