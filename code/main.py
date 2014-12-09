@@ -338,6 +338,7 @@ def run_ml_on_distances():
     nlp_features = []
     
     G = load_30k_graph_object()
+    bigG = create_snap_graph_from_adjlist(adj_list)
     article_pairs = load_article_pairs()
 
     print "There are %d article pairs." % len(article_pairs)
@@ -353,7 +354,7 @@ def run_ml_on_distances():
             src_id = int(title_to_linenum[article1_name])
             dst_id = int(title_to_linenum[article2_name])
 
-            path_length = get_graph_shortest_path(G, src_id, dst_id)
+            path_length = get_graph_shortest_path(bigG, src_id, dst_id)
             features = util.extract_nlp_features(article1_name, article2_name, num_lda_topics, name_to_type, type_to_depth, type_to_node)
 
             curr_actual = (article1_name, article2_name, path_length)
