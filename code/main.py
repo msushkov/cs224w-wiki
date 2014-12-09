@@ -26,9 +26,6 @@ type_to_node = load_data.load_object("bin/type_to_node.pk1")
 
 print "Loaded objects from binary files."
 
-print type_to_node
-
-
 
 # Debug: look at adj_list length distribution
 def print_adj_list_lengths(k):
@@ -86,22 +83,12 @@ def get_ontology_distance(article1_name, article2_name):
     article1_height = get_height(article1_name)
     article2_height = get_height(article2_name)
 
-    print "Article 1 height = %d, article 2 height = %d" % (article1_height, article2_height)
-
     article1_type_node = type_to_node[name_to_type[article1_name]]
     article2_type_node = type_to_node[name_to_type[article2_name]]
 
-    print "Article 1 node value = %s, article 2 node value = %s" % (article1_type_node.value, article2_type_node.value)
-
     root_node = type_to_node["ROOT"]
-
-    if root_node == None:
-        print "ROOT IS NONE!!!!"
-
     lca = lowest_common_ancestor(root_node, article1_type_node, article2_type_node)
     lca_height = get_height(lca)
-
-    print "LCA height = %d" % lca_height
 
     return (abs(float(lca_height) - article1_height) + \
         abs(float(lca_height) - article2_height), lca_height)
@@ -369,7 +356,7 @@ def run_ml_on_distances():
                 dst_id = int(title_to_linenum[article2_name])
 
                 #path_length = get_graph_shortest_path(G, src_id, dst_id)
-                path_length = get_ontology_distance(article1_name, article2_name)
+                path_length = get_ontology_distance(name_to_type[article1_name], name_to_type[article2_name])
                 features = util.extract_nlp_features(article1_name, article2_name, num_lda_topics, name_to_type, type_to_depth, type_to_node)
 
                 curr_actual = (article1_name, article2_name, path_length)
