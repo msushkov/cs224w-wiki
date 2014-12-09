@@ -41,7 +41,8 @@ def run_ml(nlp_features, actual_shortest_path, is_dev=True):
     frac = int(0.15 * len(nlp_features))
     X_test, y_test, X_dev, y_dev, X_train, y_train = split_test_dev_train(design_matrix, output_labels, frac, frac)
 
-    model = LinearRegression().fit(X_train, y_train)
+    #model = LinearRegression().fit(X_train, y_train)
+    model = SVR().fit(X_train, y_train)
 
     if is_dev:
         score = model.score(X_dev, y_dev)

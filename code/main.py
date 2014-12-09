@@ -341,7 +341,7 @@ def run_experiment():
 def run_ml_on_distances():
     count = 0
     #num_lda_topics_list = [10, 30, 60]
-    num_lda_topics_list = [10]
+    num_lda_topics_list = [30]
 
     # holds tuples of (article1_name, article2_name, shortest_path)
     actual_shortest_path = []
