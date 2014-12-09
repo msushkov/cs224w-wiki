@@ -320,7 +320,7 @@ def run_experiment():
             num_success += 1
 
             # ontology distance
-            ontology_distance = load_data.get_ontology_distance(article1_name, article2_name)
+            ontology_distance = get_ontology_distance(article1_name, article2_name)
 
             print "%s. Article 1: %s, Article 2: %s, Predicted distance = %d, Ontology distance = %d" % \
                 (success_or_fail, article1_name, article2_name, predicted_distance, ontology_distance)
@@ -355,7 +355,8 @@ def run_ml_on_distances():
                 src_id = int(title_to_linenum[article1_name])
                 dst_id = int(title_to_linenum[article2_name])
 
-                path_length = get_graph_shortest_path(G, src_id, dst_id)
+                #path_length = get_graph_shortest_path(G, src_id, dst_id)
+                path_length = get_ontology_distance(article1_name, article2_name)
                 features = util.extract_nlp_features(article1_name, article2_name, num_lda_topics, name_to_type, type_to_depth, type_to_node)
 
                 curr_actual = (article1_name, article2_name, path_length)
