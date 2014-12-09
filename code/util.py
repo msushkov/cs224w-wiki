@@ -193,7 +193,7 @@ def get_features(article1_name, article2_name, article1_words, article2_words, n
 
     # feature 4: ontology distance (length of path through LCA)
     # feature 5: ontology height of LCA
-    (feat4, feat5) = main.get_ontology_distance(article1_name, article2_name, name_to_type, type_to_depth, type_to_node)
+    (feat4, feat5) = get_ontology_distance(article1_name, article2_name, name_to_type, type_to_depth, type_to_node)
     features.append(feat4)
     features.append(feat5)
 
