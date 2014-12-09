@@ -84,7 +84,7 @@ def get_ontology_distance(article1_name, article2_name):
     article1_type = name_to_type[article1_name]
     article2_type = name_to_type[article2_name]
 
-    print "article 1: name = %s, type = %s, height = %d; article 2: name = %s, type = %s, height = %ds" % \
+    print "article 1: name = %s, type = %s, height = %d; article 2: name = %s, type = %s, height = %d" % \
         (article1_name, article1_type, article1_height, article2_name, article2_type, article2_height)
 
     article1_type_node = type_to_node[article1_type]
@@ -105,14 +105,16 @@ def get_path(root, node, path):
         for child in root.get_children():
             get_path(child, node, path)
     else:
-        return path
+        return
 
 # Get the path from root to both nodes; then find the point at which
 # they start to diverge.
 # node1 and node2 are both nodes in the ontology tree.
 def lowest_common_ancestor(root, node1, node2):
-    path1 = get_path(root, node1, [])
-    path2 = get_path(root, node2, [])
+    path1 = []
+    path2 = []
+    get_path(root, node1, path1)
+    get_path(root, node2, path2)
 
     min_index = min(len(path1), len(path2))
     last_equal = None
