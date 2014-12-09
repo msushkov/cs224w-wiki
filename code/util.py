@@ -5,6 +5,7 @@ from HTMLParser import HTMLParser
 import string
 import os
 import wiki_index
+import lda
 
 STOP_WORDS_FILE = os.environ['STOP_WORDS_FILE']
 

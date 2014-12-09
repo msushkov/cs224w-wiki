@@ -1,7 +1,7 @@
 import random
 import util
 import load_data
-#import snap
+import snap
 import numpy as np
 import os
 import wiki_index
@@ -12,6 +12,7 @@ print "Starting main.py..."
 ARTICLE_NAMES_30K_FILE = os.environ['ARTICLE_NAMES_30K']
 ADJ_LIST_30K_FILE = os.environ['ADJ_LIST_30K']
 ARTICLE_PAIRS_FILE = os.environ['ARTICLE_PAIRS']
+GRAPH_OBJECT_FILE = os.environ['GRAPH_OBJECT_FILE']
 
 # Load necessary data structures from file (those computed in load_data)
 
@@ -244,7 +245,11 @@ def load_30k_adj_list():
     return load_data.load_object(ADJ_LIST_30K_FILE)
 
 def load_30k_graph_object():
-    return create_snap_graph_from_adjlist(load_30k_adj_list())
+    return snap.LoadEdgeList(snap.PNGraph, "wiki", 0, 1)
+
+def save_30k_graph_object():
+    G = create_snap_graph_from_adjlist(load_30k_adj_list())
+    snap.SaveEdgeList(G, GRAPH_OBJECT_FILE)
 
 def build_index():
     wiki_index.build_indexes(load_30k_articles())

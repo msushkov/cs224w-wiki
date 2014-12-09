@@ -65,6 +65,9 @@ cd ../tfidf
 
 export TFIDF_FILE="$( cd "$(dirname "$TFIDF_FILE")" && pwd)/$(basename "$TFIDF_FILE" )"
 
+cd ../snap
+export GRAPH_OBJECT_FILE="$( cd "$(dirname "$TFIDF_FILE")" && pwd)/max_scc.txt)"
+
 cd ..
 export ONTOLOGY_FILE="$( pwd )/$(basename "$ONTOLOGY_FILE" )"
 
@@ -72,7 +75,7 @@ cd ../code/bin
 
 export ARTICLE_NAMES_30K="$( pwd )/article_names_30k.pk1"
 export ADJ_LIST_30K="$( pwd )/adj_list_30k.pk1"
-export ARTICLE_PAIRS="$( pwd )/$(basename "article_pairs.pk1" )"
+export ARTICLE_PAIRS="$( pwd )/article_pairs.pk1"
 
 cd ..
 echo "Done."
