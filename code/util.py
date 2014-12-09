@@ -165,8 +165,8 @@ def extract_nlp_features(article1_name, article2_name, num_lda_topics, name_to_t
     article_name_to_linenum = wiki_index.get_article_name_to_linenum()
 
     # lists of words
-    article1_text = wiki_index.get_article(article1_name, article_name_to_linenum)
-    article2_text = wiki_index.get_article(article2_name, article_name_to_linenum)
+    article1_text = wiki_index.get_article(article1_name)
+    article2_text = wiki_index.get_article(article2_name)
 
     return get_features(article1_name, article2_name, article1_text, article2_text, num_lda_topics, name_to_type, type_to_depth, type_to_node)
 
