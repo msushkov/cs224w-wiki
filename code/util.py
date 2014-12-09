@@ -199,7 +199,13 @@ def get_features(article1_name, article2_name, article1_words, article2_words, n
     # feature 5: num words of article 2
     features.append(len(article2_words))
 
-    return features
+    new_features = []
+
+    for f in features:
+        new_features.append(f)
+        new_features.append(f * f)
+
+    return new_features
 
 
 # Runs decentralized search
