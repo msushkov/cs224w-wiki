@@ -77,7 +77,7 @@ def get_article_text(article_name):
 
 
 # Get the height of a node in the ontology tree given its article name.
-def get_height(article_name, type_to_depth, name_to_types):
+def get_height(article_name, type_to_depth, name_to_type):
     try:
         curr_type = name_to_type[article_name]
         return type_to_depth[curr_type]
