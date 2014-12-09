@@ -66,7 +66,7 @@ cd ../tfidf
 export TFIDF_FILE="$( cd "$(dirname "$TFIDF_FILE")" && pwd)/$(basename "$TFIDF_FILE" )"
 
 cd ../snap
-export GRAPH_OBJECT_FILE="$( cd "$(dirname "$TFIDF_FILE")" && pwd)/max_scc.txt)"
+export GRAPH_OBJECT_FILE="$( pwd )/max_scc.txt"
 
 cd ..
 export ONTOLOGY_FILE="$( pwd )/$(basename "$ONTOLOGY_FILE" )"
