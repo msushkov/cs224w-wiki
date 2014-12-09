@@ -245,7 +245,7 @@ def load_30k_adj_list():
     return load_data.load_object(ADJ_LIST_30K_FILE)
 
 def load_30k_graph_object():
-    return snap.LoadEdgeList(snap.PNGraph, "wiki", 0, 1)
+    return snap.LoadEdgeList(snap.PNGraph, GRAPH_OBJECT_FILE, 0, 1)
 
 def save_30k_graph_object():
     G = create_snap_graph_from_adjlist(load_30k_adj_list())
