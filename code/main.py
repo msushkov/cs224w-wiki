@@ -84,8 +84,8 @@ def get_ontology_distance(article1_name, article2_name):
     article1_type = name_to_type[article1_name]
     article2_type = name_to_type[article2_name]
 
-    print "article 1: name = %s, type = %s, height = %d; article 2: name = %s, type = %s, height = %d" % \
-        (article1_name, article1_type, article1_height, article2_name, article2_type, article2_height)
+    #print "article 1: name = %s, type = %s, height = %d; article 2: name = %s, type = %s, height = %d" % \
+    #    (article1_name, article1_type, article1_height, article2_name, article2_type, article2_height)
 
     article1_type_node = type_to_node[article1_type]
     article2_type_node = type_to_node[article2_type]
