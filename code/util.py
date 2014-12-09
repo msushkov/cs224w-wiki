@@ -77,7 +77,7 @@ def get_article_text(article_name):
 
 
 # Get the height of a node in the ontology tree given its article name.
-def get_height(article_name):
+def get_height(article_name, type_to_depth, name_to_types):
     try:
         curr_type = name_to_type[article_name]
         return type_to_depth[curr_type]
@@ -90,14 +90,14 @@ def get_height(article_name):
 # Get the path length through the lowest common ancestor in the ontology tree.
 # Returns a tuple of (dist, lca_height)
 def get_ontology_distance(article1_name, article2_name, name_to_type, type_to_depth, type_to_node):
-    article1_height = get_height(article1_name)
-    article2_height = get_height(article2_name)
+    article1_height = get_height(article1_name, type_to_depth, name_to_type)
+    article2_height = get_height(article2_name, type_to_depth, name_to_type)
 
     article1_type_node = type_to_node[name_to_type[article1_name]]
     article2_type_node = type_to_node[name_to_type[article2_name]]
 
     lca_height = get_height(lowest_common_ancestor(type_to_node["ROOT"], \
-        article1_type_node, article2_type_node))
+        article1_type_node, article2_type_node), type_to_depth, name_to_type)
 
     return (abs(float(lca_height) - article1_height) + \
         abs(float(lca_height) - article2_height), lca_height)
