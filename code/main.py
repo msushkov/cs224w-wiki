@@ -6,6 +6,7 @@ import numpy as np
 import os
 import wiki_index
 import ml
+import copy
 
 print "Starting main.py..."
 
