@@ -374,7 +374,7 @@ def run_ml_on_distances():
         # error will be MSE on the distance
         score = ml.run_ml(nlp_features, actual_shortest_path, True)
 
-        print "Score = %d, Num LDA topics = %d" % (score, num_lda_topics)
+        print "Score = %f, Num LDA topics = %d" % (score, num_lda_topics)
 
 
 run_ml_on_distances()
