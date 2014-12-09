@@ -5,7 +5,6 @@ from HTMLParser import HTMLParser
 import string
 import os
 import wiki_index
-import main
 
 STOP_WORDS_FILE = os.environ['STOP_WORDS_FILE']
 
@@ -75,6 +74,62 @@ def get_article_text(article_name):
     
     return result.lower()
 
+
+# Get the height of a node in the ontology tree given its article name.
+def get_height(article_name):
+    try:
+        curr_type = name_to_type[article_name]
+        return type_to_depth[curr_type]
+    except KeyError:
+        print "ARTICLE: " + str(article_name)
+        print "TYPE: " + str(name_to_type[article_name])
+        print type_to_depth[curr_type]
+        return None
+
+# Get the path length through the lowest common ancestor in the ontology tree.
+# Returns a tuple of (dist, lca_height)
+def get_ontology_distance(article1_name, article2_name, name_to_type, type_to_depth, type_to_node):
+    article1_height = get_height(article1_name)
+    article2_height = get_height(article2_name)
+
+    article1_type_node = type_to_node[name_to_type[article1_name]]
+    article2_type_node = type_to_node[name_to_type[article2_name]]
+
+    lca_height = get_height(lowest_common_ancestor(type_to_node["ROOT"], \
+        article1_type_node, article2_type_node))
+
+    return (abs(float(lca_height) - article1_height) + \
+        abs(float(lca_height) - article2_height), lca_height)
+
+# append the string names to path
+def get_path(root, node, path):
+    path.append(root.value)
+
+    if root.value != node.value:
+        for child in root.get_children():
+            get_path(child, node, path)
+    else:
+        return path
+
+# Get the path from root to both nodes; then find the point at which
+# they start to diverge.
+# node1 and node2 are both nodes in the ontology tree.
+def lowest_common_ancestor(root, node1, node2):
+    path1 = get_path(root, node1, [])
+    path2 = get_path(root, node2, [])
+
+    min_index = min(len(path1), len(path2))
+    last_equal = None
+    for i in range(min_index):
+        x1 = path1[i]
+        x2 = path2[i]
+
+        if x1 == x2:
+            last_equal = x1
+        else:
+            return last_equal
+
+
 # Returns a heuristic for the distance between the 2 articles.
 # Things to try:
 # - 1.0 / number of overlapping words
@@ -106,17 +161,17 @@ def get_article_distance(article1_name, article2_name, article_text_cache):
     return (article_text_cache, result)
 
 # Returns a list of NLP features for these articles.
-def extract_nlp_features(article1_name, article2_name, num_lda_topics):
+def extract_nlp_features(article1_name, article2_name, num_lda_topics, name_to_type, type_to_depth, type_to_node):
     article_name_to_linenum = wiki_index.get_article_name_to_linenum()
 
     # lists of words
     article1_text = wiki_index.get_article(article1_name, article_name_to_linenum)
     article2_text = wiki_index.get_article(article2_name, article_name_to_linenum)
 
-    return get_features(article1_name, article2_name, article1_text, article2_text, num_lda_topics)
+    return get_features(article1_name, article2_name, article1_text, article2_text, num_lda_topics, name_to_type, type_to_depth, type_to_node)
 
 # Input: 2 lists of words
-def get_features(article1_name, article2_name, article1_words, article2_words, num_lda_topics=10):
+def get_features(article1_name, article2_name, article1_words, article2_words, num_lda_topics, name_to_type, type_to_depth, type_to_node):
     features = []
 
     # feature 1: number of words in overlap
@@ -137,7 +192,7 @@ def get_features(article1_name, article2_name, article1_words, article2_words, n
 
     # feature 4: ontology distance (length of path through LCA)
     # feature 5: ontology height of LCA
-    (feat4, feat5) = main.get_ontology_distance(article1_name, article2_name)
+    (feat4, feat5) = main.get_ontology_distance(article1_name, article2_name, name_to_type, type_to_depth, type_to_node)
     features.append(feat4)
     features.append(feat5)
 

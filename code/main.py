@@ -336,7 +336,7 @@ def run_ml_on_distances():
         dst_id = int(title_to_linenum[article2_name])
 
         actual_shortest_path = get_graph_shortest_path(G, src_id, dst_id)
-        features = util.extract_nlp_features(article1_name, article2_name, num_lda_topics)
+        features = util.extract_nlp_features(article1_name, article2_name, num_lda_topics, name_to_type, type_to_depth, type_to_node)
 
         curr_actual = (article1_name, article2_name, actual_shortest_path)
         curr_feat = (article1_name, article2_name, features)
