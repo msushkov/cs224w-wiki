@@ -26,6 +26,8 @@ type_to_node = load_data.load_object("bin/type_to_node.pk1")
 
 print "Loaded objects from binary files."
 
+print type_to_node
+
 
 
 # Debug: look at adj_list length distribution
@@ -84,11 +86,17 @@ def get_ontology_distance(article1_name, article2_name):
     article1_height = get_height(article1_name)
     article2_height = get_height(article2_name)
 
+    print "Article 1 height = %d, article 2 height = %d" % (article1_height, article2_height)
+
     article1_type_node = type_to_node[name_to_type[article1_name]]
     article2_type_node = type_to_node[name_to_type[article2_name]]
 
+    print "Article 1 node value = %s, article 2 node value = %s" % (article1_type_node.value, article2_type_node.value)
+
     lca_height = get_height(lowest_common_ancestor(type_to_node["ROOT"], \
         article1_type_node, article2_type_node))
+
+    print "LCA height = %d" % lca_height
 
     return (abs(float(lca_height) - article1_height) + \
         abs(float(lca_height) - article2_height), lca_height)
