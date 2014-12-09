@@ -120,6 +120,9 @@ def lowest_common_ancestor(root, node1, node2):
     path1 = get_path(root, node1, [])
     path2 = get_path(root, node2, [])
 
+    print path1
+    print path2
+
     min_index = min(len(path1), len(path2))
     last_equal = None
     for i in range(min_index):
