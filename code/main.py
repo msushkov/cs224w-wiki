@@ -5,6 +5,7 @@ import load_data
 import numpy as np
 import os
 import wiki_index
+import ml
 
 print "Starting main.py..."
 
@@ -344,7 +345,8 @@ def run_ml_on_distances():
 
     # now we have the actual distances and the features. do regression on them.
     # error will be MSE on the distance
+    score = ml.run_ml(nlp_features, actual_shortest_path, True)
 
+    print score
 
-# snap.PrintInfo(G, "wiki_graph", "", True)
-# build_index()
+run_ml_on_distances()

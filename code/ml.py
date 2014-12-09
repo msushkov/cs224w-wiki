@@ -45,9 +45,3 @@ def run_ml(nlp_features, actual_shortest_path, is_dev=True):
     else:
         score = model.score(X_test, y_test)
     return score
-        
-    # TODO
-
-
-
-
