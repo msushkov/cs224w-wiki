@@ -36,7 +36,8 @@ def run_ml(nlp_features, actual_shortest_path, is_dev=True):
     #X, X_test, y, y_test = cross_validation,train_test_split(design_matrix, output_labels, test_size=5000, random_state=0)
     #X_train, X_dev, y_train, y_dev = cross_validation,train_test_split(X, y, test_size=5000, random_state=0)
 
-    X_test, y_test, X_dev, y_dev, X_train, y_train = split_test_dev_train(design_matrix, output_labels, 7500, 7500)
+    frac = int(0.15 * len(nlp_features))
+    X_test, y_test, X_dev, y_dev, X_train, y_train = split_test_dev_train(design_matrix, output_labels, frac, frac)
 
     model = LinearRegression().fit(X_train, y_train)
 

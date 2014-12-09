@@ -342,7 +342,7 @@ def run_ml_on_distances():
 
     print "There are %d article pairs." % len(article_pairs)
 
-    for (article1_name, article2_name) in article_pairs:
+    for (article1_name, article2_name) in article_pairs[:1000]:
         if count % 100 == 0:
             print count
         count += 1
@@ -364,7 +364,7 @@ def run_ml_on_distances():
         except KeyError:
             continue
 
-    save_pairwise_distances(actual_shortest_path)
+    #save_pairwise_distances(actual_shortest_path)
 
     print "Number of article pairs actually analyzed: %d" % len(nlp_features)
 
