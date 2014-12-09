@@ -35,6 +35,9 @@ class Node:
     def get_children(self):
         return self.children
 
+    def __str__(self):
+        return self.value
+
 
 # mapping from type name to the corresponding node article
 type_to_node = {}

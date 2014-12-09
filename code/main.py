@@ -93,8 +93,13 @@ def get_ontology_distance(article1_name, article2_name):
 
     print "Article 1 node value = %s, article 2 node value = %s" % (article1_type_node.value, article2_type_node.value)
 
-    lca_height = get_height(lowest_common_ancestor(type_to_node["ROOT"], \
-        article1_type_node, article2_type_node))
+    root_node = type_to_node["ROOT"]
+
+    if root_node == None:
+        print "ROOT IS NONE!!!!"
+
+    lca = lowest_common_ancestor(root_node, article1_type_node, article2_type_node)
+    lca_height = get_height(lca)
 
     print "LCA height = %d" % lca_height
 
