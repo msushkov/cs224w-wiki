@@ -275,6 +275,11 @@ def save_article_pairs():
 def load_article_pairs():
     return load_data.load_object(ARTICLE_PAIRS_FILE)
 
+def save_pairwise_distances(actual_shortest_path):
+    load_data.save_object(actual_shortest_path, "bin/pairwise_distances.pk1")
+
+def load_pairwise_distances():
+    return load_data.load_object("bin/pairwise_distances.pk1")
 
 #
 # RUN THE EXPERIMENT
@@ -335,13 +340,15 @@ def run_ml_on_distances():
     G = load_30k_graph_object()
     article_pairs = load_article_pairs()
 
+    print "There are %d article pairs." % len(article_pairs)
+
     for (article1_name, article2_name) in article_pairs:
-        if count % 1000 == 0:
+        if count % 100 == 0:
             print count
         count += 1
 
         try:
-            print "Article 1: %s, article 2: %s" % (article1_name, article2_name)
+            #print "Article 1: %s, article 2: %s" % (article1_name, article2_name)
 
             src_id = int(title_to_linenum[article1_name])
             dst_id = int(title_to_linenum[article2_name])
@@ -356,6 +363,8 @@ def run_ml_on_distances():
             nlp_features.append(curr_feat)
         except KeyError:
             continue
+
+    save_pairwise_distances(actual_shortest_path)
 
     print "Number of article pairs actually analyzed: %d" % len(nlp_features)
 
