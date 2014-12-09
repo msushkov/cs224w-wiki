@@ -72,10 +72,8 @@ def get_height(article_name):
         curr_type = name_to_type[article_name]
         return type_to_depth[curr_type]
     except KeyError:
-        print "ARTICLE: " + str(article_name)
-        print "TYPE: " + str(name_to_type[article_name])
-        print type_to_depth[curr_type]
-        return None
+        print "KeyError in get_height(). ARTICLE: %s, TYPE: %s" % (str(article_name), str(name_to_type[article_name]))
+        raise KeyError
 
 # Get the path length through the lowest common ancestor in the ontology tree.
 # Returns a tuple of (dist, lca_height)
@@ -356,7 +354,7 @@ def run_ml_on_distances():
                 dst_id = int(title_to_linenum[article2_name])
 
                 #path_length = get_graph_shortest_path(G, src_id, dst_id)
-                path_length = get_ontology_distance(name_to_type[article1_name], name_to_type[article2_name])
+                path_length = get_ontology_distance(article1_name, article2_name)
                 features = util.extract_nlp_features(article1_name, article2_name, num_lda_topics, name_to_type, type_to_depth, type_to_node)
 
                 curr_actual = (article1_name, article2_name, path_length)
