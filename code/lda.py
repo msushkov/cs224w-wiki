@@ -65,6 +65,7 @@ def get_corpus():
     return MmCorpus(CORPUS_FILE)
 
 def get_topics_for_article_text(article_text, num_topics):
+    model = None
     if num_topics == 10:
         model = lda_10
     elif num_topics == 30:
@@ -77,9 +78,10 @@ def get_topics_for_article_text(article_text, num_topics):
         raise ValueError("bad number of topics")
 
     doc_bow = dictionary.doc2bow(article_text)
-    return lda[doc_bow]
+    return model[doc_bow]
 
 def get_topics_for_article_name(article_name, num_topics):
+    model = None
     if num_topics == 10:
         model = lda_10
     elif num_topics == 30:
@@ -93,11 +95,13 @@ def get_topics_for_article_name(article_name, num_topics):
 
     article = wiki_index.get_article(article_name)
     doc_bow = dictionary.doc2bow(article)
-    return lda[doc_bow]
+    return model[doc_bow]
 
 # If corpus and dictionary are None then it takes them from files.
 # Returns the lda model object (after saving it to a file).
 def build_lda_model(corpus, dictionary, num_topics=10):
+    file_name = None
+
     if corpus == None:
         corpus = get_corpus()
     if dictionary == None:
