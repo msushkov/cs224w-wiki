@@ -93,7 +93,7 @@ def get_ontology_distance(article1_name, article2_name):
 
     root_node = type_to_node["ROOT"]
     lca = lowest_common_ancestor(root_node, article1_type_node, article2_type_node)
-    lca_height = get_height(lca)
+    lca_height = type_to_depth[lca]
 
     #return (abs(float(lca_height) - article1_height) + \
     #    abs(float(lca_height) - article2_height), lca_height)
