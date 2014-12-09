@@ -84,8 +84,8 @@ def get_ontology_distance(article1_name, article2_name):
     article1_type = name_to_type[article1_name]
     article2_type = name_to_type[article2_name]
 
-    #print "article 1: name = %s, type = %s, height = %d; article 2: name = %s, type = %s, height = %d" % \
-    #    (article1_name, article1_type, article1_height, article2_name, article2_type, article2_height)
+    print "article 1: name = %s, type = %s, height = %d; article 2: name = %s, type = %s, height = %d" % \
+        (article1_name, article1_type, article1_height, article2_name, article2_type, article2_height)
 
     article1_type_node = type_to_node[article1_type]
     article2_type_node = type_to_node[article2_type]
@@ -356,28 +356,24 @@ def run_ml_on_distances():
             if count % 100 == 0:
                 print count
 
-            try:
-                #print "Article 1: %s, article 2: %s" % (article1_name, article2_name)
+            #print "Article 1: %s, article 2: %s" % (article1_name, article2_name)
 
-                src_id = int(title_to_linenum[article1_name])
-                dst_id = int(title_to_linenum[article2_name])
+            src_id = int(title_to_linenum[article1_name])
+            dst_id = int(title_to_linenum[article2_name])
 
-                #path_length = get_graph_shortest_path(G, src_id, dst_id)
-                (article1_height, article2_height, lca_height) = get_ontology_distance(article1_name, article2_name)
-                print (article1_height, article2_height, lca_height)
-                
-                features = util.extract_nlp_features(article1_name, article2_name, num_lda_topics, name_to_type, type_to_depth, type_to_node)
+            #path_length = get_graph_shortest_path(G, src_id, dst_id)
+            (article1_height, article2_height, lca_height) = get_ontology_distance(article1_name, article2_name)
+            print (article1_height, article2_height, lca_height)
+            
+            features = util.extract_nlp_features(article1_name, article2_name, num_lda_topics, name_to_type, type_to_depth, type_to_node)
 
-                curr_actual = (article1_name, article2_name, path_length)
-                curr_feat = (article1_name, article2_name, features)
+            curr_actual = (article1_name, article2_name, lca_height)
+            curr_feat = (article1_name, article2_name, features)
 
-                actual_shortest_path.append(curr_actual)
-                nlp_features.append(curr_feat)
+            actual_shortest_path.append(curr_actual)
+            nlp_features.append(curr_feat)
 
-                count += 1
-
-            except KeyError:
-                raise KeyError
+            count += 1
 
         #save_pairwise_distances(actual_shortest_path)
 
