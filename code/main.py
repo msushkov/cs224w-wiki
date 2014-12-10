@@ -454,7 +454,7 @@ def run_random_search():
     print "Number of pairs actually completed: %d" % len(results)
 
     # save object to file
-    load_data.save_object(results, "bin/results/random_dec_search_10ktrials.pk1")
+    load_data.save_object(results, "bin/results/random_dec_search_1ktrials.pk1")
 
 #run_random_search()
 
@@ -558,7 +558,7 @@ def generate_gold():
     load_data.save_object(results, "bin/results/goldset.pk1")
 
 
-generate_gold()
+#generate_gold()
 
 
 
