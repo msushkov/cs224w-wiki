@@ -6,6 +6,7 @@ import string
 import os
 import wiki_index
 import lda
+import random
 
 STOP_WORDS_FILE = os.environ['STOP_WORDS_FILE']
 
@@ -17,7 +18,7 @@ for line in f:
 f.close()
 
 # the number of edges to visit when doing decentralized search before we give up
-SEARCH_DIST_THRESHOLD = 100
+SEARCH_DIST_THRESHOLD = 500
 
 BASE_REQUEST_STR = "http://en.wikipedia.org/w/api.php?action=query&prop=extracts&format=json&explaintext&exsectionformat=plain&rvprop=content&titles="
 
@@ -143,23 +144,26 @@ def get_article_distance(article1_name, article2_name, article_text_cache):
     if article1_name in article_text_cache:
         article1_text = article_text_cache[article1_name]
     else:
-        article1_text = get_article_text(article1_name)
+        article1_text = wiki_index.get_article(article1_name)
         article_text_cache[article1_name] = article1_text
 
     if article2_name in article_text_cache:
         article2_text = article_text_cache[article2_name]
     else:
-        article2_text = get_article_text(article2_name)
+        article2_text = wiki_index.get_article(article2_name)
         article_text_cache[article2_name] = article2_text
 
     # split the text by space; convert to a set; filter stop words
-    words1 = set(article1_text.split())
-    words2 = set(article2_text.split())
-    w1 = set([w for w in words1 if not w in STOP_WORDS])
-    w2 = set([w for w in words2 if not w in STOP_WORDS])
+    words1 = set(article1_text)
+    words2 = set(article2_text)
+    result = len(words1.intersection(words2))
 
-    result = len(w1.intersection(w2))
-    return (article_text_cache, result)
+    # 1 / number of non-stop words in common
+    if result > 0:
+        return (article_text_cache, 1.0 / result)
+    else:
+        return (article_text_cache, float('inf'))
+
 
 # Returns a list of NLP features for these articles.
 def extract_nlp_features(article1_name, article2_name, num_lda_topics, name_to_type, type_to_depth, type_to_node):
@@ -199,27 +203,39 @@ def get_features(article1_name, article2_name, article1_words, article2_words, n
     # feature 5: num words of article 2
     features.append(len(article2_words))
 
-    new_features = []
+    return features
 
-    for f in features:
-        new_features.append(f)
-        new_features.append(f * f)
+    # new_features = []
 
-    return new_features
+    # for f in features:
+    #     new_features.append(f)
+    #     new_features.append(f * f)
+
+    # return new_features
 
 
 # Runs decentralized search
 # source and destination are indices into adj_list_arg
 # distance_function takes in 2 article names and a text cache dict and returns their floating-point distance
-def search(src_id, dst_id, adj_list_arg, path_length, linenum_to_title, distance_function,
-    visited_node_ids, article_text_cache):
-    try:
-        neighbors = adj_list_arg[src_id]
+def search(src_id, dst_id, adj_list_arg, path_length, linenum_to_title, distance_function, visited_node_ids, article_text_cache):
+    if src_id not in adj_list_arg:
+        return ("FAILURE", -2)
 
-        # pick the best neighbor of source (the one that has the smallest distance 
-        # to destination, given by distance_function)
-        best_neighbor_id = None
-        smallest_distance = float('inf')
+    neighbors = adj_list_arg[src_id]
+
+    if len(neighbors) == 0:
+        return ("FAILURE", -2)
+
+    is_random = True
+
+    # pick the best neighbor of source (the one that has the smallest distance 
+    # to destination, given by distance_function)
+    best_neighbor_id = None
+    smallest_distance = float('inf')    
+
+    if is_random:
+        best_neighbor_id = random.choice(neighbors)
+    else:
         for node_id in neighbors:
             # make sure we don't visit a node more than once
             if node_id in visited_node_ids:
@@ -229,63 +245,43 @@ def search(src_id, dst_id, adj_list_arg, path_length, linenum_to_title, distance
             destination_name = linenum_to_title[str(dst_id)]
 
             try:
-                (article_text_cache, curr_distance_to_dest) = distance_function(node_name,
-                    destination_name, article_text_cache)
+                (article_text_cache, curr_distance_to_dest) = \
+                    distance_function(node_name, destination_name, article_text_cache)
 
                 if curr_distance_to_dest < smallest_distance:
                     best_neighbor_id = node_id
                     smallest_distance = curr_distance_to_dest
 
             # if we can't get the text for this article, skip it
-            except ArticleNotFoundError:
+            except Exception:
                 continue
 
-        visited_node_ids.add(src_id)
+    visited_node_ids.add(src_id)
 
-        if best_neighbor_id != None:
-            print linenum_to_title[str(best_neighbor_id)]
-
-        if best_neighbor_id == None:
-            return ("FAILURE", -2)
-        elif best_neighbor_id == dst_id:
-            return ("SUCCESS", path_length + 1)
+    if best_neighbor_id == None:
+        # dead end
+        return ("FAILURE", -2)
+    elif best_neighbor_id == dst_id:
+        return ("SUCCESS", path_length + 1)
+    else:
+        if path_length >= SEARCH_DIST_THRESHOLD:
+            # didn't find after searching for a while
+            return ("FAILURE", -1)
         else:
-            if path_length >= SEARCH_DIST_THRESHOLD:
-                # didn't find after searching for a while
-                return ("FAILURE", path_length + 1)
-            else:
-                return search(best_neighbor_id, dst_id, adj_list_arg, path_length + 1,\
-                    linenum_to_title, distance_function, visited_node_ids, article_text_cache)
-    except KeyError:
-        print "sr_id = %d, dst_id = %d, neighbors of src = %s" % (src_id, dst_id, str(adj_list_arg[src_id]))
-        raise KeyError
+            return search(best_neighbor_id, dst_id, adj_list_arg, path_length + 1,\
+                linenum_to_title, distance_function, visited_node_ids, article_text_cache)
 
 # Wrapper for search()
 def run_decentralized_search(src_id, dst_id, adj_list, linenum_to_title, distance_function):
-    print "Running decentralized search..."
-
-    # cache the src and dst article text first; if one of them isnt found, don't bother with the search
-    src_name = linenum_to_title[str(src_id)]
-    dst_name = linenum_to_title[str(dst_id)]
-
-    src_text = None
-    dst_text = None
-
     article_text_cache = {}
 
-    try:
-        src_text = get_article_text(src_name)
-        dst_text = get_article_text(dst_name)
+    article1_name = linenum_to_title[str(src_id)]
+    article2_name = linenum_to_title[str(dst_id)]
 
-        article_text_cache[src_name] = src_text
-        article_text_cache[dst_name] = dst_text
-    except ArticleNotFoundError:
-        return ("FAILURE", -1)
+    article1_text = wiki_index.get_article(article1_name)
+    article2_text = wiki_index.get_article(article2_name)
 
-    try:
-        return search(src_id, dst_id, adj_list, 0, linenum_to_title, distance_function, 
-            set(), article_text_cache)
-    except KeyError:
-        print "In run_decentralized_search(): KeyError in search()"
-        return (None, None)
+    article_text_cache[article1_name] = article1_text
+    article_text_cache[article2_name] = article2_text
 
+    return search(src_id, dst_id, adj_list, 0, linenum_to_title, distance_function, set(), article_text_cache)

@@ -1,8 +1,10 @@
 import numpy as np
-from sklearn.linear_model import LinearRegression
+from sklearn.linear_model import LinearRegression, LogisticRegression
 from sklearn import cross_validation
-from sklearn.svm import SVR
+from sklearn.svm import SVR, SVC
 from sklearn import preprocessing
+from sklearn.multiclass import OneVsRestClassifier
+from sklearn.metrics import f1_score, confusion_matrix
 
 # Input: list of features and a list of the same length of the actual distance
 # Output: numpy 2D array (design matrix), numpy 1D array of the output variable
@@ -41,8 +43,10 @@ def run_ml(nlp_features, actual_shortest_path, is_dev=True):
     frac = int(0.15 * len(nlp_features))
     X_test, y_test, X_dev, y_dev, X_train, y_train = split_test_dev_train(design_matrix, output_labels, frac, frac)
 
-    model = LinearRegression().fit(X_train, y_train)
-    #model = SVR().fit(X_train, y_train)
+    #model = LinearRegression().fit(X_train, y_train)
+    #model = SVR().fit(X_train, y_train) # regression
+    model = SVC().fit(X_train, y_train) # classification
+    #model = OneVsRestClassifier(LogisticRegression()).fit(X_train, y_train)
 
     score_test_or_dev = None
     score_train = None
@@ -53,5 +57,11 @@ def run_ml(nlp_features, actual_shortest_path, is_dev=True):
         score_test_or_dev = model.score(X_test, y_test)
 
     score_train = model.score(X_train, y_train)
+    y_predicted_dev = model.predict(X_dev)
+    y_actual_dev = y_dev
 
-    return (score_test_or_dev, score_train)
+    f1 = f1_score(y_actual_dev, y_predicted_dev, average='macro')
+
+    #conf_matrix = confusion_matrix(y_actual_dev, y_predicted_dev)
+
+    return (f1, score_test_or_dev, score_train, y_predicted_dev, y_actual_dev)

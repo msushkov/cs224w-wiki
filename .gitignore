@@ -11,3 +11,4 @@ data/lda/corpus.txt
 !code/bin/article_pairs.pk1
 !code/bin/type_to_node.pk1
 !code/bin/pairwise_distances.pk1
+!code/bin/results/*

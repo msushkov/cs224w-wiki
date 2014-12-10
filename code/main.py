@@ -1,12 +1,14 @@
 import random
 import util
 import load_data
-import snap
+#import snap
 import numpy as np
 import os
 import wiki_index
 import ml
 import copy
+import matplotlib.pyplot as plt
+from collections import Counter
 
 print "Starting main.py..."
 
@@ -341,7 +343,7 @@ def run_experiment():
 def run_ml_on_distances():
     count = 0
     #num_lda_topics_list = [10, 30, 60]
-    num_lda_topics_list = [30]
+    num_lda_topics = 10
 
     # holds tuples of (article1_name, article2_name, shortest_path)
     actual_shortest_path = []
@@ -349,50 +351,175 @@ def run_ml_on_distances():
     # holds tuples of (article1_name, article2_name, [feat1, feat2, ...])
     nlp_features = []
     
-    G = load_30k_graph_object()
+    #G = load_30k_graph_object()
     #bigG = create_snap_graph_from_adjlist(adj_list)
     article_pairs = load_article_pairs()
 
+    c = Counter()
+
     print "There are %d article pairs." % len(article_pairs)
 
-    for num_lda_topics in num_lda_topics_list:
-        for (article1_name, article2_name) in article_pairs[:1000]:
-            if count % 100 == 0:
-                print count
+    for (article1_name, article2_name) in article_pairs[:1000]:
+        if count % 100 == 0:
+            print count
 
-            #print "Article 1: %s, article 2: %s" % (article1_name, article2_name)
+        #print "Article 1: %s, article 2: %s" % (article1_name, article2_name)
 
-            try:
-                src_id = int(title_to_linenum[article1_name])
-                dst_id = int(title_to_linenum[article2_name])
+        try:
+            src_id = int(title_to_linenum[article1_name])
+            dst_id = int(title_to_linenum[article2_name])
 
-                #path_length = get_graph_shortest_path(G, src_id, dst_id)
-                (path_length, lca_height) = get_ontology_distance(article1_name, article2_name)
-                print (path_length, lca_height)
-                
-                features = util.extract_nlp_features(article1_name, article2_name, num_lda_topics, name_to_type, type_to_depth, type_to_node)
-
-                curr_actual = (article1_name, article2_name, lca_height)
-                curr_feat = (article1_name, article2_name, features)
-
-                actual_shortest_path.append(curr_actual)
-                nlp_features.append(curr_feat)
-
-                count += 1
+            #path_length = get_graph_shortest_path(G, src_id, dst_id)
+            (path_length, lca_height) = get_ontology_distance(article1_name, article2_name)
+            #print (path_length, lca_height)
             
-            except KeyError:
-                continue
+            features = util.extract_nlp_features(article1_name, article2_name, num_lda_topics, name_to_type, type_to_depth, type_to_node)
 
-        #save_pairwise_distances(actual_shortest_path)
+            curr_actual = (article1_name, article2_name, lca_height)
+            curr_feat = (article1_name, article2_name, features)
 
-        #print "Number of article pairs actually analyzed: %d" % len(nlp_features)
+            actual_shortest_path.append(curr_actual)
+            nlp_features.append(curr_feat)
 
-        # now we have the actual distances and the features. do regression on them.
-        # error will be MSE on the distance
-        (score_dev, score_train) = ml.run_ml(nlp_features, actual_shortest_path, True)
+            count += 1
+        
+        except KeyError:
+            continue
 
-        print "Num LDA topics = %d" % num_lda_topics
-        print (score_dev, score_train)
+    #save_pairwise_distances(actual_shortest_path)
+
+    #print "Number of article pairs actually analyzed: %d" % len(nlp_features)
+
+    # now we have the actual distances and the features. do regression on them.
+    # error will be MSE on the distance
+    (f1, score_test_or_dev, score_train, y_predicted_dev, y_actual_dev) = ml.run_ml(nlp_features, actual_shortest_path, True)
+
+    for v in y_actual_dev:
+        c[v] += 1
+
+    print c
+
+    print "Num LDA topics = %d" % num_lda_topics
+    print (f1, score_test_or_dev, score_train)
+    #print conf_matrix
+
+    # plt.figure(1)
+    # plt.xlabel('Actual height of LCA')
+    # plt.ylabel('Predicted height of LCA')
+    # plt.title('Predicted vs actual height of LCA in ontology tree (for dev set).')
+    # plt.plot(y_actual_dev, y_predicted_dev, 'bo')
+
+    # x1 = np.arange(min(y_actual_dev), max(y_actual_dev), 0.1)
+    # y1 = [v for v in x1]
+
+    # plt.plot(x1, y1, 'r-')
+    # plt.show()
 
 
-run_ml_on_distances()
+def run_random_search(): 
+    article_pairs = load_article_pairs()
+    adj_list_30k = load_30k_adj_list()
+
+    # tuple of (a1_name, a2_name, # success, # fail, success_dec_path_lengths)
+    results = []
+
+    for (article1_name, article2_name) in article_pairs[:100]:
+        src_id = int(title_to_linenum[article1_name])
+        dst_id = int(title_to_linenum[article2_name])
+
+        success_dec_path_lengths = []
+        num_successes = 0
+        num_fail = 0
+
+        try:
+            for i in range(1000):
+                (success_or_fail, dec_search_path_length) = util.run_decentralized_search(src_id, dst_id, \
+                    adj_list_30k, linenum_to_title, util.get_article_distance)
+
+                # failure 
+                if success_or_fail == "FAILURE":
+                    num_fail += 1
+                else:
+                    num_successes += 1
+                    success_dec_path_lengths.append(dec_search_path_length)
+        
+        except KeyError:
+            continue
+
+        x = (article1_name, article2_name, num_successes, num_fail, success_dec_path_lengths)
+        results.append(x)
+
+        print "%d successes, %d failures" % (num_successes, num_fail)
+
+    print "Number of pairs actually completed: %d" % len(results)
+
+    # save object to file
+    load_data.save_object(results, "bin/results/random_dec_search_10ktrials.pk1")
+
+run_random_search()
+
+
+# Runs dec search for a given distance definition.
+def run_search():    
+    G = load_30k_graph_object()
+    article_pairs = load_article_pairs()
+    adj_list_30k = load_30k_adj_list()
+
+    num_fail = 0
+    num_successes = 0
+
+    results = []
+
+    for (article1_name, article2_name) in article_pairs[100:200]:
+        src_id = int(title_to_linenum[article1_name])
+        dst_id = int(title_to_linenum[article2_name])
+
+        success_dec_path_lengths = []
+        suc = 0
+        fail = 0
+
+        try:
+            (success_or_fail, dec_search_path_length) = util.run_decentralized_search(src_id, dst_id, \
+                adj_list_30k, linenum_to_title, util.get_article_distance)
+
+            shortest_path_length = get_graph_shortest_path(G, src_id, dst_id)
+            (ont_dist, lca_height) = get_ontology_distance(article1_name, article2_name)
+
+            # failure 
+            if success_or_fail == "FAILURE":
+                fail += 1
+            else:
+                suc += 1
+                success_dec_path_lengths.append(dec_search_path_length)
+
+        except KeyError:
+            continue
+
+        x = (article1_name, article2_name, suc, fail, success_dec_path_lengths, shortest_path_length, ont_dist, lca_height)
+        results.append(x)
+
+    print "%d successes, %d failures" % (num_successes, num_fail)
+
+    # save object to file
+    load_data.save_object(results, "bin/results/.pk1")
+
+#run_search()
+
+
+
+
+
+# print "Num LDA topics = %d" % num_lda_topics
+# print (f1, score_test_or_dev, score_train)
+
+# plt.figure(1)
+# plt.xlabel('Actual height of LCA')
+# plt.ylabel('Predicted height of LCA')
+# plt.title('Predicted vs actual height of LCA in ontology tree (for dev set).')
+# plt.plot(y_actual_dev, y_predicted_dev, 'bo')
+
+# x1 = np.arange(min(y_actual_dev), max(y_actual_dev), 0.1)
+# y1 = [v for v in x1]
+
+# plt.plot(x1, y1, 'r-')
+# plt.show()
