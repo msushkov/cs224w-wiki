@@ -55,6 +55,9 @@ class ArticleNotFoundError(Exception):
 
 # Get the text of a single Wikipedia article
 def get_article_text(article_name):
+    if "&" in article_name:
+        article_name = article_name.replace("&", "%26")
+
     result = urllib2.urlopen(create_wiki_api_url(article_name)).read()
 
     data = json.loads(result)
@@ -137,32 +140,48 @@ def lowest_common_ancestor(root, node1, node2):
 # - 1.0 / number of overlapping words
 # - Jaccard similarity between 2 sets of words
 # - Cosine similarity between TF-IDF vectors
-def get_article_distance(article1_name, article2_name, article_text_cache):
-    article1_text = None
-    article2_text = None
+def get_article_distance(article1_name, article2_name):
+    #print "Article 1: %s, article 2: %s" % (article1_name, article2_name)
 
-    if article1_name in article_text_cache:
-        article1_text = article_text_cache[article1_name]
-    else:
-        article1_text = wiki_index.get_article(article1_name)
-        article_text_cache[article1_name] = article1_text
+    #article1_text = None
+    #article2_text = None
 
-    if article2_name in article_text_cache:
-        article2_text = article_text_cache[article2_name]
-    else:
-        article2_text = wiki_index.get_article(article2_name)
-        article_text_cache[article2_name] = article2_text
+    article1_text = wiki_index.get_article(article1_name)
+    article2_text = wiki_index.get_article(article2_name)
 
     # split the text by space; convert to a set; filter stop words
-    words1 = set(article1_text)
-    words2 = set(article2_text)
-    result = len(words1.intersection(words2))
+    #article1_words = set(article1_text)
+    #article2_words = set(article2_text)
 
-    # 1 / number of non-stop words in common
-    if result > 0:
-        return (article_text_cache, 1.0 / result)
-    else:
-        return (article_text_cache, float('inf'))
+    # feature 1 = 1.0 / number of non-stop words in common
+    # feature 2 = 1.0 / Jaccard similarity
+    # feature 3 = 1.0 / cos sim between tfidf vectors
+    # feature 4 = Hellinger distance between LDA distr
+
+    #size_int = float(len(article1_words.intersection(article2_words)))
+    #feat1 = size_int
+
+    #size_union = float(len(article1_words.union(article2_words)))
+    #feat2 = size_int / size_union
+    
+    # feature 3: tf idf cosine sim
+    # vec1 = lda.get_tfidf_for_doc(article1_text)
+    # vec2 = lda.get_tfidf_for_doc(article2_text)
+    # feat3 = lda.get_cosine_sim(vec1, vec2)
+
+    # feature 4: hellinger dist
+    vec1 = lda.get_topics_for_article_text(article1_text, 10)
+    vec2 = lda.get_topics_for_article_text(article2_text, 10)
+    feat4 = lda.get_hellinger(vec1, vec2, 10)
+
+    return feat4
+
+    # result = feat3
+    # if result > 0:
+    #     return 1.0 / result
+    # else:
+    #     return 100000.0
+
 
 
 # Returns a list of NLP features for these articles.
@@ -217,7 +236,7 @@ def get_features(article1_name, article2_name, article1_words, article2_words, n
 # Runs decentralized search
 # source and destination are indices into adj_list_arg
 # distance_function takes in 2 article names and a text cache dict and returns their floating-point distance
-def search(src_id, dst_id, adj_list_arg, path_length, linenum_to_title, distance_function, visited_node_ids, article_text_cache):
+def search(src_id, dst_id, adj_list_arg, path_length, linenum_to_title, distance_function, visited_node_ids):
     if src_id not in adj_list_arg:
         return ("FAILURE", -2)
 
@@ -226,7 +245,10 @@ def search(src_id, dst_id, adj_list_arg, path_length, linenum_to_title, distance
     if len(neighbors) == 0:
         return ("FAILURE", -2)
 
-    is_random = True
+    is_random = False
+
+    # feature 2: take neighbor with largest degree
+    # feature 3: take neighbor with smallest degree
 
     # pick the best neighbor of source (the one that has the smallest distance 
     # to destination, given by distance_function)
@@ -245,15 +267,14 @@ def search(src_id, dst_id, adj_list_arg, path_length, linenum_to_title, distance
             destination_name = linenum_to_title[str(dst_id)]
 
             try:
-                (article_text_cache, curr_distance_to_dest) = \
-                    distance_function(node_name, destination_name, article_text_cache)
+                curr_distance_to_dest = distance_function(node_name, destination_name)
 
                 if curr_distance_to_dest < smallest_distance:
                     best_neighbor_id = node_id
                     smallest_distance = curr_distance_to_dest
 
             # if we can't get the text for this article, skip it
-            except Exception:
+            except KeyError:
                 continue
 
     visited_node_ids.add(src_id)
@@ -269,19 +290,19 @@ def search(src_id, dst_id, adj_list_arg, path_length, linenum_to_title, distance
             return ("FAILURE", -1)
         else:
             return search(best_neighbor_id, dst_id, adj_list_arg, path_length + 1,\
-                linenum_to_title, distance_function, visited_node_ids, article_text_cache)
+                linenum_to_title, distance_function, visited_node_ids)
 
 # Wrapper for search()
 def run_decentralized_search(src_id, dst_id, adj_list, linenum_to_title, distance_function):
-    article_text_cache = {}
+    # article_text_cache = {}
 
-    article1_name = linenum_to_title[str(src_id)]
-    article2_name = linenum_to_title[str(dst_id)]
+    # article1_name = linenum_to_title[str(src_id)]
+    # article2_name = linenum_to_title[str(dst_id)]
 
-    article1_text = wiki_index.get_article(article1_name)
-    article2_text = wiki_index.get_article(article2_name)
+    # article1_text = wiki_index.get_article(article1_name)
+    # article2_text = wiki_index.get_article(article2_name)
 
-    article_text_cache[article1_name] = article1_text
-    article_text_cache[article2_name] = article2_text
+    # article_text_cache[article1_name] = article1_text
+    # article_text_cache[article2_name] = article2_text
 
-    return search(src_id, dst_id, adj_list, 0, linenum_to_title, distance_function, set(), article_text_cache)
+    return search(src_id, dst_id, adj_list, 0, linenum_to_title, distance_function, set())

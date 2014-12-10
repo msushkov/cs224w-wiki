@@ -1,7 +1,7 @@
 import random
 import util
 import load_data
-#import snap
+import snap
 import numpy as np
 import os
 import wiki_index
@@ -359,7 +359,7 @@ def run_ml_on_distances():
 
     print "There are %d article pairs." % len(article_pairs)
 
-    for (article1_name, article2_name) in article_pairs[:1000]:
+    for (article1_name, article2_name) in article_pairs[:100]:
         if count % 100 == 0:
             print count
 
@@ -456,12 +456,37 @@ def run_random_search():
     # save object to file
     load_data.save_object(results, "bin/results/random_dec_search_10ktrials.pk1")
 
-run_random_search()
+#run_random_search()
+
+
+
+# make sure that every article in our small adj list is in the corpus.
+def check_adjlist_articles(adj_list_arg):
+    print "Checking adj list..."
+    errors = 0
+    total = 0
+    for key in adj_list_arg:
+        name = linenum_to_title[str(key)]
+        try:
+            total += 1
+            text = wiki_index.get_article(name)
+        except KeyError:
+            errors += 1
+
+        for v in adj_list_arg[key]:
+            name1 = linenum_to_title[str(v)]
+            try:
+                total += 1
+                text1 = wiki_index.get_article(name1)
+            except KeyError:
+                errors += 1
+    print "Number of errors = %d; total = %d" % (errors, total)
+
 
 
 # Runs dec search for a given distance definition.
 def run_search():    
-    G = load_30k_graph_object()
+    #G = load_30k_graph_object()
     article_pairs = load_article_pairs()
     adj_list_30k = load_30k_adj_list()
 
@@ -470,7 +495,12 @@ def run_search():
 
     results = []
 
-    for (article1_name, article2_name) in article_pairs[100:200]:
+    c = 0
+
+    for (article1_name, article2_name) in article_pairs[:100]:
+        print c
+        #print "Article 1: %s, article 2: %s" % (article1_name, article2_name)
+
         src_id = int(title_to_linenum[article1_name])
         dst_id = int(title_to_linenum[article2_name])
 
@@ -478,34 +508,56 @@ def run_search():
         suc = 0
         fail = 0
 
-        try:
-            (success_or_fail, dec_search_path_length) = util.run_decentralized_search(src_id, dst_id, \
-                adj_list_30k, linenum_to_title, util.get_article_distance)
+        #try:
+        (success_or_fail, dec_search_path_length) = util.run_decentralized_search(src_id, dst_id, \
+            adj_list_30k, linenum_to_title, util.get_article_distance)
 
-            shortest_path_length = get_graph_shortest_path(G, src_id, dst_id)
-            (ont_dist, lca_height) = get_ontology_distance(article1_name, article2_name)
+        #shortest_path_length = get_graph_shortest_path(G, src_id, dst_id)
+        #(ont_dist, lca_height) = get_ontology_distance(article1_name, article2_name)
 
-            # failure 
-            if success_or_fail == "FAILURE":
-                fail += 1
-            else:
-                suc += 1
-                success_dec_path_lengths.append(dec_search_path_length)
+        # failure 
+        if success_or_fail == "FAILURE":
+            fail += 1
+            num_fail += 1
+        else:
+            suc += 1
+            num_successes += 1
+            success_dec_path_lengths.append(dec_search_path_length)
 
-        except KeyError:
-            continue
+        # except KeyError:
+        #     continue
 
-        x = (article1_name, article2_name, suc, fail, success_dec_path_lengths, shortest_path_length, ont_dist, lca_height)
+        x = (article1_name, article2_name, suc, fail, success_dec_path_lengths)
         results.append(x)
+        c += 1
+
+        #print success_or_fail
 
     print "%d successes, %d failures" % (num_successes, num_fail)
 
     # save object to file
-    load_data.save_object(results, "bin/results/.pk1")
+    load_data.save_object(results, "bin/results/feat3.pk1")
 
 #run_search()
 
+def generate_gold():
+    G = load_30k_graph_object()
+    results = []
+    for (article1_name, article2_name) in article_pairs[:100]:
+        
+        src_id = int(title_to_linenum[article1_name])
+        dst_id = int(title_to_linenum[article2_name])
 
+        shortest_path_length = get_graph_shortest_path(G, src_id, dst_id)
+        (ont_dist, lca_height) = get_ontology_distance(article1_name, article2_name)
+        
+        x = (article1_name, article2_name, shortest_path_length, ont_dist, lca_height)
+        results.append(x)
+
+    load_data.save_object(results, "bin/results/goldset.pk1")
+
+
+generate_gold()
 
 
 
