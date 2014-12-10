@@ -542,6 +542,7 @@ def run_search():
 
 def generate_gold():
     G = load_30k_graph_object()
+    article_pairs = load_article_pairs()
     results = []
     for (article1_name, article2_name) in article_pairs[:100]:
         
